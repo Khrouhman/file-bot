@@ -1,2 +1,7 @@
 node_modules
+<<<<<<< HEAD
 
+=======
+.env
+1470115658455978218
+>>>>>>> 8261d06 (Refactors index.js for node 25)
