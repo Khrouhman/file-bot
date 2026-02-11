@@ -1,23 +1,22 @@
 {
+  "type": "module",
   "name": "file-bot",
-  "version": "0.0.1",
-  "description": "A bot to manipulate files in a real system.",
+  "version": "0.0.2",
+  "description": "A Discord bot for file management in private servers",
   "main": "index.js",
   "scripts": {
-    "test": "--test"
+    "start": "node index.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "inserthere"
+  "dependencies": {
+    "discord.js": "^14.17.3",
+    "dotenv": "^16.0.3"
   },
   "keywords": [
-    "files",
-    "storage",
-    "discord"
+    "discord",
+    "bot",
+    "file-management",
+    "private-server"
   ],
   "author": "Bro-mine",
-  "license": "BSD-3-Clause",
-  "dependencies": {
-    "discord.js": "^13.1.0"
-  }
+  "license": "BSD-3-Clause"
 }
