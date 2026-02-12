@@ -123,7 +123,7 @@ client.on('messageCreate', async message => {
       const attachment = message.attachments.first();
       if (!attachment) return message.reply('No attachment provided.');
 
-      console.log('Attachment object:', attachment); // Log the entire attachment
+      //console.log('Attachment object:', attachment); // Log the entire attachment
 
       const filename = attachment.name || 'temp_file';
 
