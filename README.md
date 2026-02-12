@@ -28,6 +28,8 @@ Usage: sendfile test.jpg -> Sends the file "test.jpg" if it is present in your u
 
 ls: Lists all files present in your user directory. Use the -a flag to list hidden files as well.
 
+convert <name>: Grabs attachment and converts to jpg (for now). Name is optional, the code will grab the name if you do not enter one manually. Does not store file, only loads into memory to convert. Must have ffmpeg installed on linux computer running bot.
+
 HIDING FILES:
 
 If the bot is being hosted in a Linux machine, add a "." to the beginning of the filename when using --savefile. I am not entirely sure how it works on Windows.
