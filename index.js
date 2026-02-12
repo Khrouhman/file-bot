@@ -94,7 +94,6 @@ client.on('messageCreate', async message => {
 
       console.log('Attachment object:', attachment); // Log the entire attachment
       const filename = attachment.name;
-      
 
       var filePath = ``;
       if(!text) filePath = `${dir}/${filename}`;
@@ -145,7 +144,7 @@ client.on('messageCreate', async message => {
 
           const output = execSync(`ffmpeg -hide_banner -loglevel error -i "${filePath}" ${newFile}`, { encoding: 'utf8' });
 
-          message.reply({ context: `File converted: ${newName}` , files: [newFile] });
+          message.reply({ content: `File converted: ${newName}`, files: [newFile] });
 
           setTimeout(() => {
             fs.unlinkSync(filePath);
