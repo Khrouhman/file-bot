@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { InstallGlobalCommands } from './utils.js';
 
 async function InstallGlobalCommands(appId, commands) {
   // API endpoint to overwrite global commands
