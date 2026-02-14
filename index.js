@@ -1,4 +1,3 @@
-                                                        
 import 'dotenv/config';
 import { Client, GatewayIntentBits } from 'discord.js';
 import { execSync } from 'child_process';
@@ -40,7 +39,7 @@ client.on('messageCreate', async message => {
       fs.writeFileSync(`${userDir}/.userid.txt`, message.author.username);
 
       message.reply('Initialization complete.');
-                                                              
+
     } catch (err) {
       message.reply('Failed to initialize.');
     }
@@ -50,7 +49,7 @@ client.on('messageCreate', async message => {
     try {
       const dir = `./${serverId}/${userId}`;
       if (!fs.existsSync(dir)) return message.reply('Directory not found.');
-      
+
       const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
       message.reply(`\`\`\`bash\n${output}\`\`\``);
     } catch (err) {
@@ -62,7 +61,7 @@ client.on('messageCreate', async message => {
     try {
       const dir = `./${serverId}/${userId}`;
       if (!fs.existsSync(dir)) return message.reply('Directory not found.');
-      
+ 
       const output = execSync(`ls -a "${dir}"`, { encoding: 'utf8' });
       message.reply(`\`\`\`bash\n${output}\`\`\``);
     } catch (err) {
@@ -92,18 +91,20 @@ client.on('messageCreate', async message => {
       const attachment = message.attachments.first();
       if (!attachment) return message.reply('No attachment provided.');
 
-      console.log('Attachment object:', attachment); // Log the entire attachment
+      //console.log('Attachment object:', attachment); // Log the entire attachment
       const filename = attachment.name;
 
       var filePath = ``;
       if(!text) filePath = `${dir}/${filename}`;
       else filePath = `${dir}/${text}`;
 
+      const fileStream = fs.createWriteStream(filePath);
 
       const request = https.get(attachment.url, (response) => {
         response.pipe(fileStream);
         fileStream.on('finish', () => {
           message.reply('File saved successfully.');
+	  console.log('File saved');
         });
       });
 
@@ -114,6 +115,24 @@ client.on('messageCreate', async message => {
       message.reply('Failed to save file.');
     }
   }
+
+  if (command === 'removefile') {
+    try {
+      const dir = `./${serverId}/${userId}`;
+      if (!fs.existsSync(dir)) return message.reply('Directory not found.');
+
+      const filePath = `${dir}/${text}`;
+      if (!fs.existsSync(filePath)) return message.reply('File not found.');
+
+      fs.unlinkSync(filePath);
+      message.reply(`Removed file: ${text}`);
+    } catch (err) {
+      message.reply('Failed to send file.');
+    }
+  }
+
+
+
   if (command === 'convert') {
     try {
       const dir = `./${serverId}/${userId}`;
@@ -154,9 +173,10 @@ client.on('messageCreate', async message => {
         } catch (err) {
           message.reply('Failed to process file');
           if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+          if (fs.existsSync(newFile)) fs.unlinkSync(newFile);
         }
         });
-      });  
+      });
 
       request.on('error', () => {
         message.reply('Failed to download file.');
