@@ -30,9 +30,9 @@ Usage: savefile test.txt -> Saves the attachment and renames it to "test.txt"
 Usage: sendfile test.jpg -> Sends the file "test.jpg" if it is present in your user directory (the one created with --initialize). Sends an error message if the files does not exist.
 
 ### removefile <name>:
-- Removes the file that you specific. (Only one at a time).
+- Removes/deletes the file with specified name. (Only one at a time).
 
-Usage: removefile test.jpg -> Unlinks the file from the directory.
+Usage: removefile test.jpg -> Delete the file from the directory. (WARNING no undo).
 
 ### ls: 
 - Lists all files present in your user directory. Use the -a flag to list hidden files as well.
