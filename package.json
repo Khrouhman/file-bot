@@ -8,7 +8,8 @@
     "node": ">=18.x"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "register": "node commmands.js"
   },
   "dependencies": {
     "discord-interactions": "^4.0.0",
