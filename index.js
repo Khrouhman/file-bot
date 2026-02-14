@@ -81,7 +81,7 @@ app.listen(PORT, () => {
   console.log('Listening on port', PORT);
 });
 
-exit(1)
+
 // Websocket approach
 client.on('ready', () => {
   console.log('Filebot reporting for duty!');
