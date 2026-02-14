@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "register": "node commmands.js"
+    "register": "node commands.js"
   },
   "dependencies": {
     "discord-interactions": "^4.0.0",
