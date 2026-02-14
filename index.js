@@ -4,7 +4,19 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import https from 'https';
 import Path from 'path';
+import { exit } from 'process';
 
+// For Discord express slash commands
+import express from 'express';
+import {
+  InteractionResponseFlags,
+  InteractionResponseType,
+  InteractionType,
+  MessageComponentTypes,
+  verifyKeyMiddleware,
+} from 'discord-interactions';
+
+// Websocket client
 const client = new Client({  
   intents: [
     GatewayIntentBits.Guilds,
@@ -13,8 +25,66 @@ const client = new Client({
   ]
 });
 
+// Create an express app
+const app = express();
+// Get port, or default to 3000
+const PORT = process.env.PORT || 3000;
+
+/**
+ * Interactions endpoint URL where Discord will send HTTP requests
+ * Parse request body and verifies incoming requests using discord-interactions package
+ */
+app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
+  // Interaction id, type and data
+  const { id, type, data } = req.body;
+
+  // Handle verification requests
+   
+  if (type === InteractionType.PING) {
+    return res.send({ type: InteractionResponseType.PONG });
+  }
+
+  /**
+   * Handle slash command requests
+   * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
+   */
+  if (type === InteractionType.APPLICATION_COMMAND) {
+    const { name } = data;
+
+    // Commands
+    if (name === 'test') {
+      // Send a message into the channel where command was triggered from
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          flags: InteractionResponseFlags.IS_COMPONENTS_V2,
+          components: [
+            {
+              type: MessageComponentTypes.TEXT_DISPLAY,
+              // Fetches a random emoji to send from a helper function
+              content: `hello world ${getRandomEmoji()}`
+            }
+          ]
+        },
+      });
+    }
+
+    console.error(`unknown command: ${name}`);
+    return res.status(400).json({ error: 'unknown command' });
+  }
+
+  console.error('unknown interaction type', type);
+  return res.status(400).json({ error: 'unknown interaction type' });
+});
+
+app.listen(PORT, () => {
+  console.log('Listening on port', PORT);
+});
+
+exit(1)
+// Websocket approach
 client.on('ready', () => {
-  console.log('Bot is online!');
+  console.log('Filebot reporting for duty!');
 });
 
 client.on('messageCreate', async message => {
@@ -91,15 +161,17 @@ client.on('messageCreate', async message => {
       const attachment = message.attachments.first();
       if (!attachment) return message.reply('No attachment provided.');
 
-      //console.log('Attachment object:', attachment); // Log the entire attachment
+      //console.log('Attachment object:', attachment); // Test Log the entire attachment
       const filename = attachment.name;
 
       var filePath = ``;
       if(!text) filePath = `${dir}/${filename}`;
       else filePath = `${dir}/${text}`;
 
+      // Temp save file
       const fileStream = fs.createWriteStream(filePath);
-
+      
+      // Actually saves file
       const request = https.get(attachment.url, (response) => {
         response.pipe(fileStream);
         fileStream.on('finish', () => {
