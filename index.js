@@ -146,7 +146,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     if (name === 'savefile') {
       var error = ``
 
-	  // Test log for file object
+      // Test log for file object
+      try {
           console.log(data.resolved);
 
           // The uploaded file object
@@ -173,6 +174,10 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
               content: `File **${fileName}** uploaded successfully!`
             }
           });
+      } catch {
+        console.error(`Error saving file.`);
+        return res.status(400).json({ error: 'Error saving Files. Contact the developer.' });
+      }
     }
     console.error(`unknown command: ${name}`);
     return res.status(400).json({ error: 'unknown command' });
