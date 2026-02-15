@@ -36,7 +36,10 @@ const PORT = process.env.PORT || 3000;
  */
 app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
   // Interaction id, type and data
+  console.log(req.body)
+
   const { id, type, data } = req.body;
+  
 
   // Handle verification requests
    
@@ -79,7 +82,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
         fileList =`\`\`\`bash\n${output}\`\`\``;
       } catch (err) {
-        console.log(`${output}`)
+        console.log(`Error listing files`)
         fileList ='Error listing files.';
       }
       return res.send({
