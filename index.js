@@ -69,6 +69,18 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       });
     }
 
+    if (name === 'ls') {
+    try {
+      const dir = `./${serverId}/${userId}`;
+      if (!fs.existsSync(dir)) return message.reply('Directory not found.');
+
+      const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
+      message.reply(`\`\`\`bash\n${output}\`\`\``);
+    } catch (err) {
+      message.reply('Error listing files.');
+    }
+  }
+
     console.error(`unknown command: ${name}`);
     return res.status(400).json({ error: 'unknown command' });
   }
