@@ -149,9 +149,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 	  // Test log for file object
           console.log(data.resolved);
 
-          const file = data.resolved.attachments; // The uploaded file object
+          const file = data.resolved.attachments.first().url; // The uploaded file object
           const fileName = file.filename;
-          const fileContent = file.url; // You'll need to download this
 
           // Download the file first
           const response = await fetch(file.url);
