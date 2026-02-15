@@ -30,9 +30,6 @@ const app = express();
 // Get port, or default to 3000
 const PORT = process.env.PORT || 3000;
 
-<<<<<<< HEAD
-//console.log('PUBLIC_KEY:', process.env.PUBLIC_KEY);
-=======
 console.log('PUBLIC_KEY:', process.env.PUBLIC_KEY);
 
 app.get('/test', (req, res) => {
@@ -41,7 +38,13 @@ app.get('/test', (req, res) => {
     publicKeyLength: process.env.PUBLIC_KEY?.length || 0
   });
 });
->>>>>>> c14f1325546643e7cbf769f03d4c9820007178d9
+
+const verifyKeyMiddleware = (publicKey) => {
+  return (req, res, next) => {
+    console.log('Request Headers:', req.headers);
+    next();
+  };
+};
 
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
