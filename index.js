@@ -32,8 +32,11 @@ const PORT = process.env.PORT || 3000;
 
 console.log('PUBLIC_KEY:', process.env.PUBLIC_KEY);
 
-app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
-  // ... rest of code
+app.get('/test', (req, res) => {
+  res.json({
+    publicKeyLoaded: !!process.env.PUBLIC_KEY,
+    publicKeyLength: process.env.PUBLIC_KEY?.length || 0
+  });
 });
 
 /**
