@@ -70,16 +70,31 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     }
 
     if (name === 'ls') {
-    try {
+      // Send a message into the channel where command was triggered from
+      var fileList = ``
+      try {
       const dir = `./${serverId}/${userId}`;
       if (!fs.existsSync(dir)) return message.reply('Directory not found.');
 
       const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
-      message.reply(`\`\`\`bash\n${output}\`\`\``);
-    } catch (err) {
-      message.reply('Error listing files.');
+      fileList =`\`\`\`bash\n${output}\`\`\``;
+      } catch (err) {
+        fileList ='Error listing files.';
+      }
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          flags: InteractionResponseFlags.IS_COMPONENTS_V2,
+          components: [
+            {
+              type: MessageComponentTypes.TEXT_DISPLAY,
+              // Fetches a random emoji to send from a helper function
+              content: `${fileList}`
+            }
+          ]
+        },
+      });
     }
-  }
 
     console.error(`unknown command: ${name}`);
     return res.status(400).json({ error: 'unknown command' });
