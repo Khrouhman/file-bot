@@ -73,12 +73,13 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       // Send a message into the channel where command was triggered from
       var fileList = ``
       try {
-      const dir = `./${serverId}/${userId}`;
-      if (!fs.existsSync(dir)) return message.reply('Directory not found.');
+        const dir = `./${serverId}/${userId}`;
+        if (!fs.existsSync(dir)) return message.reply('Directory not found.');
 
-      const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
-      fileList =`\`\`\`bash\n${output}\`\`\``;
+        const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
+        fileList =`\`\`\`bash\n${output}\`\`\``;
       } catch (err) {
+        console.log(`${output}`)
         fileList ='Error listing files.';
       }
       return res.send({
