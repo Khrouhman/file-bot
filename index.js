@@ -159,7 +159,7 @@ client.on('messageCreate', async message => {
       const filePath = `${dir}/${text}`;
       if (!fs.existsSync(filePath)) return message.reply('File not found.');
 
-      message.reply({ files: [filePath] });
+      message.reply({ content: `File: ${text}`, files: [filePath] });
     } catch (err) {
       message.reply('Failed to send file.');
     }
@@ -174,11 +174,11 @@ client.on('messageCreate', async message => {
       if (!attachment) return message.reply('No attachment provided.');
 
       //console.log('Attachment object:', attachment); // Test Log the entire attachment
-      const filename = attachment.name;
+      var filename = ``;
+      if(!text) filename = attachment.name;
+      else filename = text;
 
-      var filePath = ``;
-      if(!text) filePath = `${dir}/${filename}`;
-      else filePath = `${dir}/${text}`;
+      var filePath = `${dir}/${filename}`;
 
       // Temp save file
       const fileStream = fs.createWriteStream(filePath);
@@ -187,8 +187,8 @@ client.on('messageCreate', async message => {
       const request = https.get(attachment.url, (response) => {
         response.pipe(fileStream);
         fileStream.on('finish', () => {
-          message.reply('File saved successfully.');
-	  console.log('File saved');
+          message.reply(`File saved successfully. Name: ${filename}`);
+	  console.log(`File saved: ${filePath}.`);
         });
       });
 
