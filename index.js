@@ -79,8 +79,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         if (!fs.existsSync(dir)) return message.reply('Directory not found.');
 
         const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
-        //fileList =`\`\`\`bash\n${output}\`\`\``;
-        fileList = `${output}`
+        fileList =`\`\`\`bash\n${output}\`\`\``;
+        
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
