@@ -153,9 +153,10 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           // Convert to array with Object values to handle different ids better
           const file = Object.values(data.resolved.attachments); 
           const fileName = file[0].filename;
+          const fileContent = file[0].url;
 
           // Download the file first
-          const response = await fetch(file.url);
+          const response = await fetch(fileContent);
           const buffer = await response.arrayBuffer();
 
           const dir = `./${guild_id}/${userId}`;
