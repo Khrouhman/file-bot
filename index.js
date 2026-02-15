@@ -38,9 +38,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   // Interaction id, type and data
   console.log(req.body)
 
-  const { id, type, data } = req.body;
-  
-
+  const { id, type, data, guild_id, member } = req.body;
+  const userId = member.user.id;
   // Handle verification requests
    
   if (type === InteractionType.PING) {
@@ -76,7 +75,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       // Send a message into the channel where command was triggered from
       var fileList = ``
       try {
-        const dir = `./${serverId}/${userId}`;
+        const dir = `./${guild_id}/${userId}`;
         if (!fs.existsSync(dir)) return message.reply('Directory not found.');
 
         const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
