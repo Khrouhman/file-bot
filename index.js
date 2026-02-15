@@ -35,11 +35,16 @@ const PORT = process.env.PORT || 3000;
  * Parse request body and verifies incoming requests using discord-interactions package
  */
 app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
-  // Interaction id, type and data
+  // Test incoming command
   console.log(req.body)
-
+  // Interaction id, type and data, server name and who requested
   const { id, type, data, guild_id, member } = req.body;
+
+  // Grab id from who requested it
   const userId = member.user.id;
+  // Will replace id with username later
+  const userName = member.user.username;
+
   // Handle verification requests
    
   if (type === InteractionType.PING) {
