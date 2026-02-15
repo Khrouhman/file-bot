@@ -75,12 +75,12 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       // Send a message into the channel where command was triggered from
       var fileList = ``
       try {
-        const dir = `./${guild_id}/${userId}`;
+        const dir = `./${guild_idx}/${userId}`;
         if (!fs.existsSync(dir)) return message.reply('Directory not found.');
 
         const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
         fileList =`\`\`\`bash\n${output}\`\`\``;
-        
+
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
@@ -94,22 +94,17 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           },
         });
       } catch (err) {
-        console.log(`Error listing files`)
+        console.log(`Error listing files`);
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
-            flags: InteractionResponseFlags.IS_COMPONENTS_V2,
-            components: [
-              {
-                type: MessageComponentTypes.EPHEMERAL, // Only to user
-                content: `Error Listing Files. Contact the developer`
-              }
-            ]
+            flags: InteractionResponseFlags.EPHEMERAL,
+            content: `Error Listing Files. Contact the developer.`
           },
         });
 
       }
-      
+
     }
 
     console.error(`unknown command: ${name}`);
