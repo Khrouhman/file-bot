@@ -30,11 +30,7 @@ const app = express();
 // Get port, or default to 3000
 const PORT = process.env.PORT || 3000;
 
-console.log('PUBLIC_KEY:', process.env.PUBLIC_KEY);
-
-app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
-  // ... rest of code
-});
+//console.log('PUBLIC_KEY:', process.env.PUBLIC_KEY);
 
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
