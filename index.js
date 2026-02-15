@@ -30,22 +30,6 @@ const app = express();
 // Get port, or default to 3000
 const PORT = process.env.PORT || 3000;
 
-console.log('PUBLIC_KEY:', process.env.PUBLIC_KEY);
-
-app.get('/test', (req, res) => {
-  res.json({
-    publicKeyLoaded: !!process.env.PUBLIC_KEY,
-    publicKeyLength: process.env.PUBLIC_KEY?.length || 0
-  });
-});
-
-const verifyKeyMiddleware = (publicKey) => {
-  return (req, res, next) => {
-    console.log('Request Headers:', req.headers);
-    next();
-  };
-};
-
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
  * Parse request body and verifies incoming requests using discord-interactions package
