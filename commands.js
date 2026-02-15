@@ -43,8 +43,15 @@ const SAVEFILE_COMMAND = {
   contexts: [0, 1, 2],
 };
 
+const GETFILE_COMMAND = {
+  name: 'getfile',
+  description: 'Get file from server.',
+  type: 1,
+  integration_types: [0, 1],
+  contexts: [0, 1, 2],
+};
 
 
-const ALL_COMMANDS = [TEST_COMMAND, LS_COMMAND, LSA_COMMAND, SAVEFILE_COMMAND];
+const ALL_COMMANDS = [TEST_COMMAND, LS_COMMAND, LSA_COMMAND, SAVEFILE_COMMAND, GETFILE_COMMAND];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);

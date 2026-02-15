@@ -4,7 +4,6 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import https from 'https';
 import Path from 'path';
-import { exit } from 'process';
 
 // For Discord express slash commands
 import express from 'express';
@@ -146,8 +145,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
     if (name === 'savefile') {
       var error = ``
-
-      
       try {
           // Test log for file object
           console.log(data.resolved);
@@ -174,6 +171,35 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
             data: {
               flags: InteractionResponseFlags.EPHEMERAL,
               content: `File **${fileName}** uploaded successfully!`
+            }
+          });
+      } catch {
+        console.error(`Error saving file.`);
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionResponseFlags.EPHEMERAL,
+            content: `File failed to save. Contact Developer.`
+          }
+        });
+      }
+    }
+
+    if (name === 'getfile') {
+      var error = ``
+      try {
+          const dir = `./${guild_id}/${userId}`;
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+          }
+          const filePath = `${dir}/${text}`;
+
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              flags: InteractionResponseFlags.EPHEMERAL,
+              content: `File **${fileName}** retrieved!`, 
+              files: [filePath]
             }
           });
       } catch {
