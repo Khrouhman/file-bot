@@ -39,7 +39,7 @@ const SAVEFILE_COMMAND = {
       required: true
     }
   ],
-  integration_types: [0, 1, 5],
+  integration_types: [0, 1],
   contexts: [0, 1, 2],
 };
 
