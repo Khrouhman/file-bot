@@ -160,7 +160,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           const response = await fetch(fileContent);
           const buffer = await response.arrayBuffer();
 
-          const dir = `./${guild_id}/${userId}`;
+          const dir = `./${guild_id}/${userIdx}`;
           if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
           }
@@ -176,7 +176,13 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           });
       } catch {
         console.error(`Error saving file.`);
-        return res.status(400).json({ error: 'Error saving Files. Contact the developer.' });
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionResponseFlags.EPHEMERAL,
+            content: `File failed to save. Contact Developer.`
+          }
+        });
       }
     }
     console.error(`unknown command: ${name}`);
