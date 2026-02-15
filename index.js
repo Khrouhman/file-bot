@@ -145,8 +145,11 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
     if (name === 'savefile') {
       var error = ``
-      try {
-          const file = data.options.value; // The uploaded file object
+
+	  // Test log for file object
+          console.log(data.resolved);
+
+          const file = data.resolved.attachments; // The uploaded file object
           const fileName = file.filename;
           const fileContent = file.url; // You'll need to download this
 
@@ -168,12 +171,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
               content: `File **${fileName}** uploaded successfully!`
             }
           });
-      } catch (err) {
-        console.error(`Error Saving file.`);
-        return res.status(400).json({ error: 'Error Saving file.' });
-      }
     }
-
     console.error(`unknown command: ${name}`);
     return res.status(400).json({ error: 'unknown command' });
   }
