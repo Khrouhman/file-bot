@@ -79,24 +79,37 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         if (!fs.existsSync(dir)) return message.reply('Directory not found.');
 
         const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
-        fileList =`\`\`\`bash\n${output}\`\`\``;
+        //fileList =`\`\`\`bash\n${output}\`\`\``;
+        fileList = `${output}`
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionResponseFlags.IS_COMPONENTS_V2,
+            components: [
+              {
+                type: MessageComponentTypes.TEXT_DISPLAY,
+                content: `${fileList}`
+              }
+            ]
+          },
+        });
       } catch (err) {
         console.log(`Error listing files`)
-        fileList ='Error listing files.';
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionResponseFlags.IS_COMPONENTS_V2,
+            components: [
+              {
+                type: MessageComponentTypes.EPHEMERAL, // Only to user
+                content: `Error Listing Files. Contact the developer`
+              }
+            ]
+          },
+        });
+
       }
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          flags: InteractionResponseFlags.IS_COMPONENTS_V2,
-          components: [
-            {
-              type: MessageComponentTypes.TEXT_DISPLAY,
-              // Fetches a random emoji to send from a helper function
-              content: `${fileList}`
-            }
-          ]
-        },
-      });
+      
     }
 
     console.error(`unknown command: ${name}`);
