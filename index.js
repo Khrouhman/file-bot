@@ -37,6 +37,7 @@ const PORT = process.env.PORT || 3000;
 app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
   // Test incoming command
   console.log(req.body)
+
   // Interaction id, type and data, server name and who requested
   const { id, type, data, guild_id, member } = req.body;
 
@@ -146,9 +147,10 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     if (name === 'savefile') {
       var error = ``
 
-      // Test log for file object
+      
       try {
-          console.log(data.resolved);
+          // Test log for file object
+          //console.log(data.resolved);
 
           // The uploaded file object
           // Convert to array with Object values to handle different ids better
