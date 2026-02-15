@@ -71,15 +71,14 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       });
     }
 
-    if (name === 'ls') {
-      // Send a message into the channel where command was triggered from
-      var fileList = ``
+    if (name === 'list') {
+      var error = ``
       try {
-        const dir = `./${guild_idx}/${userId}`;
-        if (!fs.existsSync(dir)) return message.reply('Directory not found.');
+        const dir = `./${guild_id}/${userId}`;
+        if (!fs.existsSync(dir)) error = `Directory not found.`;
 
         const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
-        fileList =`\`\`\`bash\n${output}\`\`\``;
+        const fileList =`\`\`\`bash\n${output}\`\`\``;
 
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -95,16 +94,79 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         });
       } catch (err) {
         console.log(`Error listing files`);
+        error = `Error Listing Files. Contact the developer.`
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
-            flags: InteractionResponseFlags.EPHEMERAL,
-            content: `Error Listing Files. Contact the developer.`
+            flags: InteractionResponseFlags.EPHEMERAL, // Only show to user
+            content: `${error}`
           },
         });
-
       }
+    }
 
+    if (name === 'listall') {
+      var error = ``
+      try {
+        const dir = `./${guild_id}/${userId}`;
+        if (!fs.existsSync(dir)) error = `Directory not found.`;
+        const output = execSync(`ls -a "${dir}"`, { encoding: 'utf8' });
+        const fileList =`\`\`\`bash\n${output}\`\`\``;
+
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionResponseFlags.IS_COMPONENTS_V2,
+            components: [
+              {
+                type: MessageComponentTypes.TEXT_DISPLAY,
+                content: `${fileList}`
+              }
+            ]
+          },
+        });
+      } catch (err) {
+        console.log(`Error listing files`);
+        error = `Error Listing Files. Contact the developer.`
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionResponseFlags.EPHEMERAL, // Only show to user
+            content: `${error}`
+          },
+        });
+      }
+    }
+
+    if (name === 'savefile') {
+      var error = ``
+      try {
+          const file = data.options.value; // The uploaded file object
+          const fileName = file.filename;
+          const fileContent = file.url; // You'll need to download this
+
+          // Download the file first
+          const response = await fetch(file.url);
+          const buffer = await response.arrayBuffer();
+
+          const dir = `./${guild_id}/${userId}`;
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+          }
+
+          fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(buffer));
+
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              flags: InteractionResponseFlags.EPHEMERAL,
+              content: `File **${fileName}** uploaded successfully!`
+            }
+          });
+      } catch (err) {
+        console.error(`Error Saving file.`);
+        return res.status(400).json({ error: 'Error Saving file.' });
+      }
     }
 
     console.error(`unknown command: ${name}`);

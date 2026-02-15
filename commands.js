@@ -12,14 +12,39 @@ const TEST_COMMAND = {
 
 // Simple test command
 const LS_COMMAND = {
-  name: 'ls',
-  description: 'List files command',
+  name: 'list',
+  description: 'List files',
   type: 1,
   integration_types: [0, 1],
   contexts: [0, 1, 2],
 };
 
+const LSA_COMMAND = {
+  name: 'listall',
+  description: 'List all files',
+  type: 1,
+  integration_types: [0, 1],
+  contexts: [0, 1, 2],
+};
 
-const ALL_COMMANDS = [TEST_COMMAND, LS_COMMAND];
+const SAVEFILE_COMMAND = {
+  name: 'savefile',
+  description: 'Save file to directory.',
+  type: 1,
+  options: [
+    {
+      name: 'file',
+      description: 'The file to upload',
+      type: 11, // Attachment type
+      required: true
+    }
+  ],
+  integration_types: [0, 1, 5],
+  contexts: [0, 1, 2],
+};
+
+
+
+const ALL_COMMANDS = [TEST_COMMAND, LS_COMMAND, LSA_COMMAND, SAVEFILE_COMMAND];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
