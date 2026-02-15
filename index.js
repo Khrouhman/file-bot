@@ -30,11 +30,10 @@ const app = express();
 // Get port, or default to 3000
 const PORT = process.env.PORT || 3000;
 
-app.get('/test', (req, res) => {
-  res.json({
-    publicKeyLoaded: !!process.env.PUBLIC_KEY,
-    publicKeyLength: process.env.PUBLIC_KEY?.length || 0
-  });
+console.log('PUBLIC_KEY:', process.env.PUBLIC_KEY);
+
+app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
+  // ... rest of code
 });
 
 /**
