@@ -152,7 +152,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           // The uploaded file object
           // Convert to array with Object values to handle different ids better
           const file = Object.values(data.resolved.attachments); 
-          const fileName = file.filename;
+          const fileName = file[0].filename;
 
           // Download the file first
           const response = await fetch(file.url);
