@@ -150,7 +150,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       
       try {
           // Test log for file object
-          //console.log(data.resolved);
+          console.log(data.resolved);
 
           // The uploaded file object
           // Convert to array with Object values to handle different ids better
@@ -162,7 +162,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           const response = await fetch(fileContent);
           const buffer = await response.arrayBuffer();
 
-          const dir = `./${guild_id}/${userIdx}`;
+          const dir = `./${guild_id}/${userId}`;
           if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
           }
