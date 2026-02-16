@@ -201,12 +201,16 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
 	        console.log(fileContent);
 
+          // Try using AttachmentBuilder from discord.js
+          const { AttachmentBuilder } = require('discord.js');
+          const attachment = new AttachmentBuilder(fileContent, { name: fileName });
+
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
               flags: InteractionResponseFlags.EPHEMERAL,
 	            content: `File **${fileName}** retrieved!`,
-              files: [filePath]
+              files: [attachment]
           }});
     }
     console.error(`unknown command: ${name}`);
