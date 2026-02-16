@@ -215,9 +215,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
             }
           }));
 
-
           // Add file to formData
-          formData.append('files', fileContent, fileName);
+          formData.append('files', blob, fileName);
 
           // Send the request
           return res.send({
