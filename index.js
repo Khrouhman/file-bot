@@ -199,15 +199,26 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           const filePath = `${dir}/${fileName}`;
 	        const fileContent = fs.readFileSync(filePath);
 
-	        console.log(fileContent);
+          // Debug the file content
+          console.log('File content type:', typeof fileContent);
+          console.log('File content length:', fileContent.length);
+          console.log('File content sample:', fileContent.slice(0, 100).toString());
 
           // Try using AttachmentBuilder from discord.js
           const attachment = new AttachmentBuilder(fileContent, { name: fileName });
 
+          console.log({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: 'File retrieved!',
+              files: [attachmentObject]
+            }
+          });
+
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
-              flags: InteractionResponseFlags.IS_COMPONENTS_V2,
+              flags: InteractionResponseFlags.EPHEMERAL,
               content: `File: **${fileName}**`,
               files: [attachment]
 	            

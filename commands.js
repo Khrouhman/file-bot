@@ -49,10 +49,10 @@ const GETFILE_COMMAND = {
   type: 1,
   options: [
     {
-	name: 'filename',
-	description: 'file to retrieve',
-	type: 3, // String type
-	required: false
+    name: 'filename',
+    description: 'file to retrieve',
+    type: 3, // String type
+    required: false
     }
   ],
   integration_types: [0, 1],
