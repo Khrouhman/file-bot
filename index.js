@@ -189,29 +189,48 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     }
 
     if (name === 'getfile') {
-      var error = ``;
-      // Test log
-      console.log(data);
-      const fileName = data.options[0].value
+      const fileName = data.options.value;
+      const dir = `./${guild_id}/${userId}`;
+      const filePath = `${dir}/${fileName}`;
 
-          const dir = `./${guild_id}/${userId}`;
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-          }
-
-          const filePath = `${dir}/${fileName}`;
-          if (!fs.existsSync(filePath)) return message.reply('File not found.');
-
-          const fileContent = fs.readFileSync(filePath);
-          
-          // Defer the response 
-          res.send({
-            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
-            data: { flags: InteractionResponseFlags.EPHEMERAL }
+      try {
+        if (!fs.existsSync(filePath)) {
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              flags: InteractionResponseFlags.EPHEMERAL,
+              content: `File not found: **${fileName}**`
+            }
           });
+        }
 
-          message.reply({ content: `File: ${text}`, files: [filePath] });
+        const fileContent = fs.readFileSync(filePath);
+        
+        // Send file directly in the response
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionResponseFlags.EPHEMERAL,
+            content: `File: **${fileName}**`,
+            files: [{
+              name: fileName,
+              file: fileContent
+            }]
+          }
+        });
+      } catch (err) {
+        console.error('Error retrieving file:', err);
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionResponseFlags.EPHEMERAL,
+            content: `Failed to retrieve file.`
+          }
+        });
+      }
     }
+
+
     console.error(`unknown command: ${name}`);
     return res.status(400).json({ error: 'unknown command' });
   }
