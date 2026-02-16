@@ -205,13 +205,16 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           console.log('File content sample:', fileContent.slice(0, 100).toString());
 
           // Try using AttachmentBuilder from discord.js
-          const attachment = new AttachmentBuilder(fileContent, { name: fileName });
+          const attachment =  {
+	    name: fileName,
+	    file: fileContent
+	  };
 
           console.log({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
               content: 'File retrieved!',
-              files: [attachmentObject]
+              files: [attachment]
             }
           });
 
