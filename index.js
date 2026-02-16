@@ -147,11 +147,11 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       var error = ``
       try {
           // Test log for file object
-          console.log(data.resolved);
+          console.log(data.resolved.attachments);
 
           // The uploaded file object
           // Convert to array with Object values to handle different ids better
-          const file = Object.values(data.resolved.attachments); 
+          const file = Object.values(data.resolved.attachments);
           const fileName = file[0].filename;
           const fileContent = file[0].url;
 
@@ -186,32 +186,30 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     }
 
     if (name === 'getfile') {
-      var error = ``
-      try {
+      var error = ``;
+      // Test log
+      console.log(data);
+      const fileName = data.options[0].value
+
           const dir = `./${guild_id}/${userId}`;
           if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
           }
-          const filePath = `${dir}/${text}`;
+
+          const filePath = `${dir}/${fileName}`;
+	  const fileContent = fs.readFileSync(filePath);
+
+	  console.log(fileContent);
 
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
               flags: InteractionResponseFlags.EPHEMERAL,
-              content: `File **${fileName}** retrieved!`, 
-              files: [filePath]
-            }
+	      content: `File **${fileName}** retrieved!`,
+              file: {
+		"url": `attachment://${fileName}`
+	      }
           });
-      } catch {
-        console.error(`Error saving file.`);
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            flags: InteractionResponseFlags.EPHEMERAL,
-            content: `File failed to save. Contact Developer.`
-          }
-        });
-      }
     }
     console.error(`unknown command: ${name}`);
     return res.status(400).json({ error: 'unknown command' });

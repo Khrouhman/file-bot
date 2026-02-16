@@ -47,6 +47,14 @@ const GETFILE_COMMAND = {
   name: 'getfile',
   description: 'Get file from server.',
   type: 1,
+  options: [
+    {
+	name: 'filename',
+	description: 'file to retrieve',
+	type: 3, // String type
+	required: false
+    }
+  ],
   integration_types: [0, 1],
   contexts: [0, 1, 2],
 };
