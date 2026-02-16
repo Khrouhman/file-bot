@@ -3,7 +3,7 @@ import { Client, GatewayIntentBits } from 'discord.js';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import https from 'https';
-import Path from 'path';
+import Path from 'path'
 
 // For Discord express slash commands
 import express from 'express';
@@ -38,7 +38,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   console.log(req.body)
 
   // Interaction id, type and data, server name and who requested
-  const { id, type, data, guild_id, member } = req.body;
+  const { id, type, data, guild_id, member, token } = req.body;
 
   // Grab id from who requested it
   const userId = member.user.id;
@@ -86,6 +86,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         if (!fs.existsSync(dir)) error = `Directory not found.`;
 
         const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
+
         const fileList =`\`\`\`bash\n${output}\`\`\``;
 
         return res.send({
@@ -114,11 +115,14 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     }
 
     if (name === 'listall') {
-      var error = ``
       try {
         const dir = `./${guild_id}/${userId}`;
-        if (!fs.existsSync(dir)) error = `Directory not found.`;
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+          }
+
         const output = execSync(`ls -a "${dir}"`, { encoding: 'utf8' });
+
         const fileList =`\`\`\`bash\n${output}\`\`\``;
 
         return res.send({
@@ -135,7 +139,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         });
       } catch (err) {
         console.log(`Error listing files`);
-        error = `Error Listing Files. Contact the developer.`
+        error = `Error Listing Files.\nDoes directory exist?`
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
@@ -147,6 +151,56 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     }
 
     if (name === 'savefile') {
+      var error = ``
+      try {
+          // Test log for file object
+          console.log(data.resolved.attachments);
+          console.log(data.options);
+
+          const hidden = data.options[1].value;
+          // The uploaded file object
+          // Convert to array with Object values to handle different ids better
+          const file = Object.values(data.resolved.attachments);
+          const fileContent = file[0].url;
+          var fileName = `default`
+          if (hidden) {
+            fileName = '.' + file[0].filename;
+          } else {
+            fileName = file[0].filename;
+          }
+
+
+          // Download the file first
+          const response = await fetch(fileContent);
+          const buffer = await response.arrayBuffer();
+
+          const dir = `./${guild_id}/${userId}`;
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+          }
+
+          fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(buffer));
+
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              flags: InteractionResponseFlags.EPHEMERAL,
+              content: `File **${fileName}** uploaded successfully!`
+            }
+          });
+      } catch {
+        console.error(`Error saving file.`);
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionResponseFlags.EPHEMERAL,
+            content: `File failed to save. Contact Developer.`
+          }
+        });
+      }
+    }
+
+    if (name === 'removefile') {
       var error = ``
       try {
           // Test log for file object
@@ -189,11 +243,12 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     }
 
     if (name === 'getfile') {
-      const fileName = data.options.value;
-      const dir = `./${guild_id}/${userId}`;
-      const filePath = `${dir}/${fileName}`;
 
       try {
+        const fileName = data.options[0].value;
+        const dir = `./${guild_id}/${userId}`;
+        const filePath = `${dir}/${fileName}`;
+
         if (!fs.existsSync(filePath)) {
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -204,27 +259,40 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           });
         }
 
-        const fileContent = fs.readFileSync(filePath);
-        
-        // Send file directly in the response
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            flags: InteractionResponseFlags.EPHEMERAL,
-            content: `File: **${fileName}**`,
-            files: [{
-              name: fileName,
-              file: fileContent
-            }]
+        // Filebot is thinking
+        // Makes bot wait so code can send websocket
+        res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
+
+        // Discord expects Multipart form data json
+        const form = new FormData();
+
+        // Add message to Discord reply
+        form.append(
+          'payload_json',
+          JSON.stringify({ content: `File retrieved: ${fileName}` })
+        );
+
+        const fileBuffer = fs.readFileSync(filePath); // Get file buffer
+        const blob = new Blob([fileBuffer]); // Convert to blob (discord requires blob instead of buffer)
+
+        form.append('files[0]', blob, fileName); // Add file to discord reply
+
+        // Webhook sends file
+        await fetch(
+          `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
+          {
+            method: 'POST',
+            body: form
           }
-        });
-      } catch (err) {
-        console.error('Error retrieving file:', err);
+        );
+        return; // Tell Discord bot request is done
+      } catch {
+        console.error(`Error retrieving file.`);
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
             flags: InteractionResponseFlags.EPHEMERAL,
-            content: `Failed to retrieve file.`
+            content: `File could not be retrieved.\nDoes Directory exist?`
           }
         });
       }

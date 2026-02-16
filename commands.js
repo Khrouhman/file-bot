@@ -37,6 +37,12 @@ const SAVEFILE_COMMAND = {
       description: 'The file to upload',
       type: 11, // Attachment type
       required: true
+    },
+    {
+      name: 'hidden',
+      description: 'Hidden file?',
+      type: 5, // bool type
+      required: false
     }
   ],
   integration_types: [0, 1],
