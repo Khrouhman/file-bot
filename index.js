@@ -197,18 +197,16 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           }
 
           const filePath = `${dir}/${fileName}`;
-	  const fileContent = fs.readFileSync(filePath);
+	        const fileContent = fs.readFileSync(filePath);
 
-	  console.log(fileContent);
+	        console.log(fileContent);
 
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
               flags: InteractionResponseFlags.EPHEMERAL,
 	            content: `File **${fileName}** retrieved!`,
-              file: {
-		            "url": `attachment://${fileName}`
-	            }
+              files: [filePath]
           }});
     }
     console.error(`unknown command: ${name}`);
