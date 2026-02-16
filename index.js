@@ -199,6 +199,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           const filePath = `${dir}/${fileName}`;
 	        const fileContent = fs.readFileSync(filePath);
 
+          const blob = new Blob([fileContent], { type: 'application/octet-stream' });
+
           // Use multipart/form-data with proper structure
           const formData = new FormData();
           formData.append('payload_json', JSON.stringify({
@@ -208,7 +210,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
               content: `File: **${fileName}**`,
               files: [{
                 name: fileName,
-                file: fileContent
+                file: blob
               }]
             }
           }));
@@ -225,7 +227,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
               content: `File: **${fileName}**`,
               files: [{
                 name: fileName,
-                file: fileContent
+                file: blob
               }]
             }
           });
