@@ -207,8 +207,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
-              flags: InteractionResponseFlags.EPHEMERAL,
-	            content: `File **${fileName}** retrieved!`,
+              //flags: InteractionResponseFlags.EPHEMERAL,
+	            //content: `File **${fileName}** retrieved!`,
               files: [attachment]
           }});
     }
