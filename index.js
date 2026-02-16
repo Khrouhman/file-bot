@@ -221,10 +221,26 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
-              flags: InteractionResponseFlags.EPHEMERAL,
-              content: `File: **${fileName}**`,
-              files: [attachment]
-	            
+              flags: InteractionResponseFlags.IS_COMPONENTS_V2,
+              components: [
+                {
+                  type: MessageComponentTypes.TEXT_DISPLAY,
+                  // Fetches a random emoji to send from a helper function
+                  content: `File retrieved: ${fileName}`,
+                  files: [attachment],
+                },
+                {
+                  type: MessageComponentTypes.ACTION_ROW,
+                  components: [
+                    {
+                      type: MessageComponentTypes.BUTTON,
+                      style: 1,
+                      label: "Download",
+                      url: `attachment://${fileName}`
+                    },
+                  ],
+                },
+              ],
           }});
     }
     console.error(`unknown command: ${name}`);
