@@ -215,8 +215,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
                   content: `hello world`
                 },
                 {
-                  "type": 13,  // ComponentType.FILE
-                  "file": {
+                  type: MessageComponentTypes.FILE, // ComponentType.FILE
+                  file: {
                     "url": "attachment://test.jpg"
                   }
                 },
