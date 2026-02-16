@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits, AttachmentBuilder } from 'discord.js';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import https from 'https';
@@ -202,7 +202,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 	        console.log(fileContent);
 
           // Try using AttachmentBuilder from discord.js
-          const { AttachmentBuilder } = require('discord.js');
           const attachment = new AttachmentBuilder(fileContent, { name: fileName });
 
           return res.send({
