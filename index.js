@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { Client, GatewayIntentBits, AttachmentBuilder } from 'discord.js';
+import { Client, GatewayIntentBits } from 'discord.js';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import https from 'https';
@@ -44,6 +44,9 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   const userId = member.user.id;
   // Will replace id with username later
   const userName = member.user.username;
+
+  // client app for sending files
+  
 
   // Handle verification requests
    
@@ -197,39 +200,17 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           }
 
           const filePath = `${dir}/${fileName}`;
-	        const fileContent = fs.readFileSync(filePath);
+          if (!fs.existsSync(filePath)) return message.reply('File not found.');
 
-          const blob = new Blob([fileContent], { type: 'application/octet-stream' });
-
-          // Use multipart/form-data with proper structure
-          const formData = new FormData();
-          formData.append('payload_json', JSON.stringify({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              flags: InteractionResponseFlags.EPHEMERAL,
-              content: `File: **${fileName}**`,
-              files: [{
-                name: fileName,
-                file: blob
-              }]
-            }
-          }));
-
-          // Add file to formData
-          formData.append('files', blob, fileName);
-
-          // Send the request
-          return res.send({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              flags: InteractionResponseFlags.EPHEMERAL,
-              content: `File: **${fileName}**`,
-              files: [{
-                name: fileName,
-                file: blob
-              }]
-            }
+          const fileContent = fs.readFileSync(filePath);
+          
+          // Defer the response 
+          res.send({
+            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+            data: { flags: InteractionResponseFlags.EPHEMERAL }
           });
+
+          message.reply({ content: `File: ${text}`, files: [filePath] });
     }
     console.error(`unknown command: ${name}`);
     return res.status(400).json({ error: 'unknown command' });
