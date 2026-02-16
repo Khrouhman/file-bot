@@ -199,48 +199,19 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           const filePath = `${dir}/${fileName}`;
 	        const fileContent = fs.readFileSync(filePath);
 
-          // Debug the file content
-          console.log('File content type:', typeof fileContent);
-          console.log('File content length:', fileContent.length);
-          console.log('File content sample:', fileContent.slice(0, 100).toString());
-
-          // Try using AttachmentBuilder from discord.js
-          const attachment =  {
-	    name: fileName,
-	    file: fileContent
-	  };
-
-          console.log({
+          // Use multipart/form-data with proper structure
+          const formData = new FormData();
+          formData.append('payload_json', JSON.stringify({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
-              content: 'File retrieved!',
-              files: [attachment]
+              flags: InteractionResponseFlags.EPHEMERAL,
+              content: `File: **${fileName}**`,
+              files: [{
+                name: fileName,
+                file: fileContent
+              }]
             }
-          });
-
-          return res.send({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              flags: InteractionResponseFlags.IS_COMPONENTS_V2,
-              components: [
-                {
-                  type: MessageComponentTypes.TEXT_DISPLAY,
-                  // Fetches a random emoji to send from a helper function
-                  content: `File retrieved: ${fileName}`,
-                },
-                {
-                  type: MessageComponentTypes.ACTION_ROW,
-                  components: [
-                    {
-                      type: MessageComponentTypes.BUTTON,
-                      style: 1,
-                      label: "Download",
-                      url: `attachment://${filePath}`
-                    },
-                  ],
-                },
-              ],
-          }});
+          }));
     }
     console.error(`unknown command: ${name}`);
     return res.status(400).json({ error: 'unknown command' });
