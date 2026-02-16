@@ -212,6 +212,23 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
               }]
             }
           }));
+
+
+          // Add file to formData
+          formData.append('files', fileContent, fileName);
+
+          // Send the request
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              flags: InteractionResponseFlags.EPHEMERAL,
+              content: `File: **${fileName}**`,
+              files: [{
+                name: fileName,
+                file: fileContent
+              }]
+            }
+          });
     }
     console.error(`unknown command: ${name}`);
     return res.status(400).json({ error: 'unknown command' });
