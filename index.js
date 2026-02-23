@@ -78,7 +78,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     if (name === 'list') {
       var error = ``
       try {
-        const dir = `./${guild_id}/${userId}`;
+        const dir = `./${guild_id}/${userName}-${userId}`;
         if (!fs.existsSync(dir)) {
           error = `Directory not found. Creating one.`;
           initialize();
@@ -114,7 +114,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
     if (name === 'listall') {
       try {
-        const dir = `./${guild_id}/${userId}`;
+        const dir = `./${guild_id}/$${userName}-${userId}`;
         if (!fs.existsSync(dir)) {
             initialize();
         }
@@ -163,11 +163,13 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       try {
           // Test log for file object
           //console.log(data.resolved.attachments);
-          console.log(data.options);
-
+          console.log(data.options);          
+          
+          const dir = `./${guild_id}/$${userName}-${userId}`;
           if (!fs.existsSync(dir)) {
             initialize();
           }
+
           // The uploaded file object
           // Convert to array with Object values to handle different ids better
           const file = Object.values(data.resolved.attachments);
@@ -179,15 +181,9 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
             fileName = file[0].filename;
           }
 
-
           // Download the file first
           const response = await fetch(fileContent);
           const buffer = await response.arrayBuffer();
-
-          const dir = `./${guild_id}/${userId}`;
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-          }
 
           fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(buffer));
 
