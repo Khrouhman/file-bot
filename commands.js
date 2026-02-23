@@ -1,5 +1,19 @@
 import 'dotenv/config';
 import { InstallGlobalCommands } from './utils.js';
+import { getFiles } from './index.js';
+
+// Get the game choices from game.js
+function createCommandChoices() {
+  const files = getFiles();
+  const commandChoices = [];
+
+  for (let file of files) {
+    commandChoices.push({
+      name: file,
+    });
+  }
+  return commandChoices;
+}
 
 // Simple test command
 const TEST_COMMAND = {
@@ -8,6 +22,25 @@ const TEST_COMMAND = {
   type: 1,
   integration_types: [0, 1],
   contexts: [0, 1, 2],
+};
+
+// Command containing options
+// From discord tutorial. Reference for dropdown/action row
+const CHALLENGE_COMMAND = {
+  name: 'challenge',
+  description: 'Challenge to a match of rock paper scissors',
+  options: [
+    {
+      type: 3,
+      name: 'object',
+      description: 'Pick your object',
+      required: true,
+      choices: createCommandChoices(),
+    },
+  ],
+  type: 1,
+  integration_types: [0, 1],
+  contexts: [0, 2],
 };
 
 // Simple test command
