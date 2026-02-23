@@ -25,9 +25,11 @@ const PORT = process.env.PORT || 3000;
  */
 app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
   // Test incoming command
-  console.log(req)
-  console.log('--------------------------------------')
   console.log(req.body)
+  console.log('--------------------------------------')
+  console.log(req.body.guild)
+  console.log('--------------------------------------')
+  console.log(req.body.guild.features[0])
 
   // Interaction id, type and data, server name and who requested
   const { id, type, data, guild_id, member, token } = req.body;
