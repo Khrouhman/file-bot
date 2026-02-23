@@ -151,9 +151,17 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     }
 
     if (name === 'savefile') {
-      if (data.options[1].value != null) {
-        var hidden = data.options[1].value || false;
+      var hidden = false
+      try {
+        var hidden = data.options[1].value;
+      } catch (error) {
+        if (error instanceof TypeError) {
+          console.log('User did not enter hidden');
+        } else {
+          throw error; // Re-throw if not a TypeError
+        }
       }
+        
       try {
           // Test log for file object
           console.log(data.resolved.attachments);
