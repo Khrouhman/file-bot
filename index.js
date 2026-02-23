@@ -151,8 +151,9 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     }
 
     if (name === 'savefile') {
-
-      const hidden = data.options[1].value || Boolean(false);
+      if (data.options[1].value != null) {
+        var hidden = data.options[1].value || false;
+      }
       try {
           // Test log for file object
           console.log(data.resolved.attachments);
