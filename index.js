@@ -92,7 +92,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
         const fileList =`\`\`\`bash\n${output}\`\`\``;
 
-        fileChoices = string.split(' ')
+        fileChoices = output.split(' ')
+        console.log(fileChoices)
 
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
