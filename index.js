@@ -29,6 +29,8 @@ const app = express();
 // Get port, or default to 3000
 const PORT = process.env.PORT || 3000;
 
+const hidden = data.options[1].value || Boolean(false);
+
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
  * Parse request body and verifies incoming requests using discord-interactions package
@@ -157,7 +159,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           console.log(data.resolved.attachments);
           console.log(data.options);
 
-          const hidden = data.options[1].value || false;
           // The uploaded file object
           // Convert to array with Object values to handle different ids better
           const file = Object.values(data.resolved.attachments);
