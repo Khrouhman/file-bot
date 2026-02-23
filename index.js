@@ -25,24 +25,25 @@ const PORT = process.env.PORT || 3000;
  */
 app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
   // Test incoming command
-  //console.log(req.body)
+  console.log(req.body)
 
   // Interaction id, type and data, server name and who requested
   const { id, type, data, guild_id, member, token } = req.body;
 
   // Grab id from who requested it
   const userId = member.user.id;
+  const userName = member.user.username;
 
   // Initialize
   function initialize() {
-    const serverDir = `./${serverId}`;
+    const serverDir = `./${guild_id}`;
     const userDir = `${serverDir}/${userId}`;
 
     if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true });
     if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
 
     fs.writeFileSync(`${serverDir}/.serverid.txt`, message.guild?.name || 'Unknown Server');
-    fs.writeFileSync(`${userDir}/.userid.txt`, message.author.username);
+    fs.writeFileSync(`${userDir}/.userid.txt`, userName);
   }
 
   // Handle verification requests
