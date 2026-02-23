@@ -114,7 +114,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
     if (name === 'listall') {
       try {
-        const dir = `./${guild_id}/$${userName}-${userId}`;
+        const dir = `./${guild_id}/${userName}-${userId}`;
         if (!fs.existsSync(dir)) {
             initialize();
         }
@@ -165,7 +165,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           //console.log(data.resolved.attachments);
           console.log(data.options);          
           
-          const dir = `./${guild_id}/$${userName}-${userId}`;
+          const dir = `./${guild_id}/${userName}-${userId}`;
           if (!fs.existsSync(dir)) {
             initialize();
           }
