@@ -26,8 +26,7 @@ const PORT = process.env.PORT || 3000;
 app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
   // Test incoming command
   console.log(req.body)
-  console.log('--------------------------------------')
-  console.log(req.body.guild.name)
+
   // Interaction id, type and data, server name and who requested
   const { id, type, data, guild_id, member, token } = req.body;
 
@@ -42,8 +41,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
     if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true });
     if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
-
-    fs.writeFileSync(`${serverDir}/.serverid.txt`, message.guild?.name || 'Unknown Server');
     fs.writeFileSync(`${userDir}/.userid.txt`, userName);
   }
 
