@@ -40,7 +40,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     const userDir = `${serverDir}/${userId}`;
 
     if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true });
-    if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
+    if (!fs.existsSync(userDir)) fs.mkdirSync(`${userName}-${userDir}`, { recursive: true });
     fs.writeFileSync(`${userDir}/.userid.txt`, userName);
   }
 
