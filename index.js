@@ -25,6 +25,8 @@ const PORT = process.env.PORT || 3000;
  */
 app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
   // Test incoming command
+  console.log(req)
+  console.log('--------------------------------------')
   console.log(req.body)
 
   // Interaction id, type and data, server name and who requested
