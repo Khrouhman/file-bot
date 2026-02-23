@@ -37,10 +37,10 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   // Initialize
   function initialize() {
     const serverDir = `./${guild_id}`;
-    const userDir = `${serverDir}/${userId}`;
+    const userDir = `${serverDir}/${userName}-${userId}`;
 
     if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true });
-    if (!fs.existsSync(userDir)) fs.mkdirSync(`${userName}-${userDir}`, { recursive: true });
+    if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
     fs.writeFileSync(`${userDir}/.userid.txt`, userName);
   }
 
