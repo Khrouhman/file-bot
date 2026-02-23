@@ -29,8 +29,6 @@ const app = express();
 // Get port, or default to 3000
 const PORT = process.env.PORT || 3000;
 
-const hidden = data.options[1].value || Boolean(false);
-
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
  * Parse request body and verifies incoming requests using discord-interactions package
@@ -153,7 +151,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     }
 
     if (name === 'savefile') {
-      var error = ``
+
+      const hidden = data.options[1].value || Boolean(false);
       try {
           // Test log for file object
           console.log(data.resolved.attachments);
