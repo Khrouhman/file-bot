@@ -82,7 +82,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         const dir = `./${guild_id}/${userId}`;
         if (!fs.existsSync(dir)) {
           error = `Directory not found. Creating one.`;
-          initialize
+          initialize();
         }
 
         const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
@@ -117,7 +117,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       try {
         const dir = `./${guild_id}/${userId}`;
         if (!fs.existsSync(dir)) {
-            initialize
+            initialize();
         }
 
         const output = execSync(`ls -a "${dir}"`, { encoding: 'utf8' });
@@ -165,9 +165,9 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           // Test log for file object
           //console.log(data.resolved.attachments);
           console.log(data.options);
-          
+
           if (!fs.existsSync(dir)) {
-            initialize
+            initialize();
           }
           // The uploaded file object
           // Convert to array with Object values to handle different ids better
