@@ -157,7 +157,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           console.log(data.resolved.attachments);
           console.log(data.options);
 
-          const hidden = data.options[1].value;
+          const hidden = data.options[1].value || false;
           // The uploaded file object
           // Convert to array with Object values to handle different ids better
           const file = Object.values(data.resolved.attachments);
