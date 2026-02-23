@@ -27,7 +27,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   // Test incoming command
   console.log(req.body)
   console.log('--------------------------------------')
-  console.log(res)
+  console.log(req.body.guild.name)
   // Interaction id, type and data, server name and who requested
   const { id, type, data, guild_id, member, token } = req.body;
 
