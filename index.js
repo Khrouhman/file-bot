@@ -57,6 +57,12 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   if (type === InteractionType.APPLICATION_COMMAND) {
     const { name } = data;
 
+    const dir = `./${guild_id}/${userName}-${userId}`;
+    if (!fs.existsSync(dir)) {
+      error = `Directory not found. Creating one.`;
+      initialize();
+    }
+
     // Commands
     if (name === 'test') {
       // Send a message into the channel where command was triggered from
@@ -78,12 +84,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     if (name === 'list') {
       var error = ``
       try {
-        const dir = `./${guild_id}/${userName}-${userId}`;
-        if (!fs.existsSync(dir)) {
-          error = `Directory not found. Creating one.`;
-          initialize();
-        }
-
         const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
 
         const fileList =`\`\`\`bash\n${output}\`\`\``;
@@ -114,11 +114,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
     if (name === 'listall') {
       try {
-        const dir = `./${guild_id}/${userName}-${userId}`;
-        if (!fs.existsSync(dir)) {
-            initialize();
-        }
-
         const output = execSync(`ls -a "${dir}"`, { encoding: 'utf8' });
 
         const fileList =`\`\`\`bash\n${output}\`\`\``;
@@ -164,11 +159,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           // Test log for file object
           //console.log(data.resolved.attachments);
           console.log(data.options);          
-          
-          const dir = `./${guild_id}/${userName}-${userId}`;
-          if (!fs.existsSync(dir)) {
-            initialize();
-          }
 
           // The uploaded file object
           // Convert to array with Object values to handle different ids better
@@ -222,11 +212,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           const response = await fetch(fileContent);
           const buffer = await response.arrayBuffer();
 
-          const dir = `./${guild_id}/${userId}`;
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
-          }
-
           fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(buffer));
 
           return res.send({
@@ -252,7 +237,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
       try {
         const fileName = data.options[0].value;
-        const dir = `./${guild_id}/${userId}`;
         const filePath = `${dir}/${fileName}`;
 
         if (!fs.existsSync(filePath)) {
