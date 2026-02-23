@@ -161,7 +161,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           throw error; // Re-throw if not a TypeError
         }
       }
-        
       try {
           // Test log for file object
           console.log(data.resolved.attachments);
