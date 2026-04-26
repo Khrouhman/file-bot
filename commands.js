@@ -26,24 +26,6 @@ const TEST_COMMAND = {
   contexts: [0, 1, 2],
 };
 
-// Command containing options
-// From discord tutorial. Reference for dropdown/action row
-const CHALLENGE_COMMAND = {
-  name: 'challenge',
-  description: 'Test list of files',
-  options: [
-    {
-      type: 3,
-      name: 'file',
-      description: 'Pick your file',
-      required: true,
-      choices: createCommandChoices(),
-    },
-  ],
-  type: 1,
-  integration_types: [0, 1],
-  contexts: [0, 2],
-};
 
 // Simple test command
 const LS_COMMAND = {
@@ -90,10 +72,11 @@ const GETFILE_COMMAND = {
   type: 1,
   options: [
     {
-    name: 'filename',
-    description: 'file to retrieve',
-    type: 3, // String type
-    required: false
+      name: 'filename',
+      description: 'file to retrieve',
+      type: 3, // String type
+      required: true,
+      autocomplete: true,
     }
   ],
   integration_types: [0, 1],
