@@ -346,7 +346,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
               flags: InteractionResponseFlags.EPHEMERAL,
-              content: `File failed to upload: **${fileName}**`
+              content: `File failed to upload: **${input_filename}**`
             }
           });
         }
@@ -361,13 +361,13 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         // Add message to Discord reply
         form.append(
           'payload_json',
-          JSON.stringify({ content: `File retrieved: ${fileName}` })
+          JSON.stringify({ content: `File retrieved: ${input_filename}` })
         );
 
         const fileBuffer = fs.readFileSync(filePath); // Get file buffer
         const blob = new Blob([fileBuffer]); // Convert to blob (discord requires blob instead of buffer)
 
-        form.append('files[0]', blob, fileName); // Add file to discord reply
+        form.append('files[0]', blob, input_filename); // Add file to discord reply
 
         // Webhook sends file
         await fetch(
