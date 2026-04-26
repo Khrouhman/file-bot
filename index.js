@@ -43,6 +43,14 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     fs.writeFileSync(`${userDir}/.userid.txt`, userName);
   }
 
+  const { name } = data;
+
+  const dir = `./${guild_id}/${userName}-${userId}`;
+  if (!fs.existsSync(dir)) {
+    error = `Directory not found. Creating one.`;
+    initialize();
+  }
+
   // Handle verification requests
   if (type === InteractionType.PING) {
     return res.send({ type: InteractionResponseType.PONG });
@@ -52,7 +60,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
    * Handle autocomplete for file selection
    */
   if (type === InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE) {
-    const { name } = data;
     if (name === 'getfile') {
       const files = fs.readdirSync(dir);
       return res.json({
@@ -69,13 +76,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
    * Source https://discord.com/developers/docs/interactions/application-commands#slash-commands
    */
   if (type === InteractionType.APPLICATION_COMMAND) {
-    const { name } = data;
-
-    const dir = `./${guild_id}/${userName}-${userId}`;
-    if (!fs.existsSync(dir)) {
-      error = `Directory not found. Creating one.`;
-      initialize();
-    }
 
     // Commands
     if (name === 'test') {
