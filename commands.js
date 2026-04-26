@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { InstallGlobalCommands } from './utils.js';
-import { getFiles } from './index.js';
+
 
 // Simple test command
 const TEST_COMMAND = {
