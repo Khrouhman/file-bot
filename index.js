@@ -49,10 +49,9 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
   // Command ran log
   console.log("-".repeat(100))
-  console.log("COMMAND RUNNING")
+  console.log(userName + " IS RUNNING A COMMAND" )
   console.log("-".repeat(100))
   console.log(data)
-  console.log(userName + " " + userId)
   console.log(req.body.channel)
 
   // Location to save/get files
@@ -193,8 +192,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
       try {
           // Test log for file object
-          //console.log(data.resolved.attachments);
-          console.log(data.options);          
+          console.log(data.resolved.attachments);
+          //console.log(data.options);          
 
           // The uploaded file object
           // Convert to array with Object values to handle different ids better
