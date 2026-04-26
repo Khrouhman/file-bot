@@ -31,14 +31,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   // Interaction id, type and data, server name and who requested
   const { id, type, data, guild_id, member, token } = req.body;
 
-  // Command ran log
-  console.log("-".repeat(100))
-  console.log("COMMAND RUNNING")
-  console.log("-".repeat(100))
-  console.log(data)
-  console.log(member)
-  console.log(req.body.channel)
-
   // Grab id from who requested it
   const userId = member.user.id;
   const userName = member.user.username;
@@ -54,6 +46,15 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   }
   // Command name
   const { name } = data;
+
+  // Command ran log
+  console.log("-".repeat(100))
+  console.log("COMMAND RUNNING")
+  console.log("-".repeat(100))
+  console.log(name)
+  console.log(userName)
+  console.log(userId)
+  console.log(req.body.channel)
 
   // Location to save/get files
   const dir = `./${guild_id}/${userName}-${userId}`;
