@@ -33,11 +33,11 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
   // Command ran log
   console.log("-".repeat(100))
-  console.log(data)
-  console.log(member.user)
-  console.log(req.body.guild)
-  console.log(req.body.channel)
+  console.log("COMMAND RUNNING")
   console.log("-".repeat(100))
+  console.log(data)
+  console.log(member)
+  console.log(req.body.channel)
 
   // Grab id from who requested it
   const userId = member.user.id;
