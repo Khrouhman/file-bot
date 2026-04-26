@@ -32,10 +32,12 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   const { id, type, data, guild_id, member, token } = req.body;
 
   // Command ran log
-  console.log("-".repeat(30))
+  console.log("-".repeat(100))
+  console.log(data)
   console.log(member.user)
-  console.log(data.name)
-  console.log("-".repeat(30))
+  console.log(req.body.guild)
+  console.log(req.body.channel)
+  console.log("-".repeat(100))
 
   // Grab id from who requested it
   const userId = member.user.id;
@@ -50,7 +52,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
     fs.writeFileSync(`${userDir}/.userid.txt`, userName);
   }
-
   // Command name
   const { name } = data;
 
