@@ -2,21 +2,6 @@ import 'dotenv/config';
 import { InstallGlobalCommands } from './utils.js';
 import { getFiles } from './index.js';
 
-// Get the game choices from index.js
-function createCommandChoices() {
-  const files = getFiles();
-  const commandChoices = [];
-
-  // Add each file as a choice
-  for (let file of files) {
-    commandChoices.push({
-      name: file,
-      value: file,
-    });
-  }
-  return commandChoices;
-}
-
 // Simple test command
 const TEST_COMMAND = {
   name: 'test',

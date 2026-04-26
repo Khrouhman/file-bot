@@ -17,13 +17,6 @@ const app = express();
 // Get port, or default to 3000
 const PORT = process.env.PORT || 3000;
 
-// Get Files to display in Dropdown menu
-var fileChoices = ["file1", "file2", "notfile.txt"]
-
-export function getFiles() {
-  return fileChoices
-}
-
 /**
  * Interactions endpoint URL where Discord will send HTTP requests
  * Parse request body and verifies incoming requests using discord-interactions package
@@ -53,6 +46,22 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   // Handle verification requests
   if (type === InteractionType.PING) {
     return res.send({ type: InteractionResponseType.PONG });
+  }
+
+
+  /**
+   * Handle autocomplete for file selection
+   */
+  if (type === InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE) {
+    if (name === 'getfile') {
+      const files = fs.readdirSync(dir);
+      return res.json({
+        type: InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
+        data: {
+          choices: files.map(f => ({ name: f, value: f }))
+        }
+      });
+    }
   }
 
   /**
