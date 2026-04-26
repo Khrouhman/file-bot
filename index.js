@@ -186,7 +186,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         var hidden = data.options[1].value;
       } catch (error) {
         if (error instanceof TypeError) {
-          console.log('User did not enter hidden');
+          console.log('Hidden = False');
         } else {
           throw error; // Re-throw if not a TypeError
         }
@@ -211,6 +211,9 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           } else {
             fileName = file[0].filename;
           }
+
+          // Defer to avoid timeout
+          res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
 
           // Download the file first
           const response = await fetch(fileContent);
