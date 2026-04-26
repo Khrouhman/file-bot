@@ -222,13 +222,15 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(buffer));
 
           // End command
-          return res.send({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              flags: InteractionResponseFlags.EPHEMERAL,
-              content: `File **${fileName}** uploaded successfully!`
+          // Then follow up via webhook
+          await fetch(
+            `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
+            {
+              method: 'POST',
+              body: JSON.stringify({ content: `File **${fileName}** uploaded successfully!` }),
+              headers: { 'Content-Type': 'application/json' }
             }
-          });
+          );
       } catch {
         console.error(`Error saving file.`);
         return res.send({
