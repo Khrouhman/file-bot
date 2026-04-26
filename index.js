@@ -49,10 +49,10 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
   // Command ran log
   console.log("-".repeat(100))
-  console.log(userName + " IS RUNNING A COMMAND" )
+  console.log("FILEBOT IS RUNNING" )
   console.log("-".repeat(100))
-  console.log(data)
-  console.log(req.body.channel)
+  console.log(userName + " ran command:\n" + data)
+  console.log("On Channel:\n" + req.body.channel)
 
   // Location to save/get files
   const dir = `./${guild_id}/${userName}-${userId}`;
@@ -191,14 +191,16 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       }
 
       try {
-          // Test log for file object
-          console.log(data.resolved.attachments);
+          //console.log(data.resolved.attachments);
           //console.log(data.options);          
 
           // The uploaded file object
           // Convert to array with Object values to handle different ids better
           const file = Object.values(data.resolved.attachments);
           const fileContent = file[0].url;
+
+          // Test log for file object
+          console.log("File " + file[0].filename + " is a " + file[0].content_type)
 
           var fileName = `default`
           if (hidden) {
