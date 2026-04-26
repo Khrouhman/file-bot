@@ -48,11 +48,11 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     return res.send({ type: InteractionResponseType.PONG });
   }
 
-
   /**
    * Handle autocomplete for file selection
    */
   if (type === InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE) {
+    const { name } = data;
     if (name === 'getfile') {
       const files = fs.readdirSync(dir);
       return res.json({
