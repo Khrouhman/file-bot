@@ -301,59 +301,66 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         });
       }
     }
-    
-    // "challenge" command from discord tutorial
-    // Will reuse to make getfile/removefile with dropdown/action row
-    
-    // Store for in-progress games. In production, you'd want to use a DB
-    const activeGames = {};
 
-    if (name === 'challenge' && id) {
-      // Interaction context
-      const context = req.body.context;
-      // User ID is in user field for (G)DMs, and member for servers
-      const userId = context === 0 ? req.body.member.user.id : req.body.user.id;
-      // User's object choice
-      const objectName = req.body.data.options[0].value;
+    if (name === 'convert') {
 
-      // Create active game using message ID as the game ID
-      activeGames[id] = {
-        id: userId,
-        objectName,
-      };
+      try {
+        const fileName = data.options[0].value;
+        const filePath = `${dir}/${fileName}`;
 
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          flags: InteractionResponseFlags.IS_COMPONENTS_V2,
-          components: [
-            {
-              type: MessageComponentTypes.TEXT_DISPLAY,
-              // Fetches a random emoji to send from a helper function
-              content: `Rock papers scissors challenge from <@${userId}>`,
-            },
-            {
-              type: MessageComponentTypes.ACTION_ROW,
-              components: [
-                {
-                  type: MessageComponentTypes.BUTTON,
-                  // Append the game ID to use later on
-                  custom_id: `accept_button_${req.body.id}`,
-                  label: 'Accept',
-                  style: ButtonStyleTypes.PRIMARY,
-                },
-              ],
-            },
-          ],
-        },
-      });
+        if (!fs.existsSync(filePath)) {
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              flags: InteractionResponseFlags.EPHEMERAL,
+              content: `File not found: **${fileName}**`
+            }
+          });
+        }
+
+        // Filebot is thinking
+        // Makes bot wait so code can send websocket
+        res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
+
+        // Discord expects Multipart form data json
+        const form = new FormData();
+
+        // Add message to Discord reply
+        form.append(
+          'payload_json',
+          JSON.stringify({ content: `File retrieved: ${fileName}` })
+        );
+
+        const fileBuffer = fs.readFileSync(filePath); // Get file buffer
+        const blob = new Blob([fileBuffer]); // Convert to blob (discord requires blob instead of buffer)
+
+        form.append('files[0]', blob, fileName); // Add file to discord reply
+
+        // Webhook sends file
+        await fetch(
+          `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
+          {
+            method: 'POST',
+            body: form
+          }
+        );
+        return; // Tell Discord bot request is done
+      } catch {
+        console.error(`Error retrieving file.`);
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionResponseFlags.EPHEMERAL,
+            content: `File could not be retrieved.\nDoes Directory exist?`
+          }
+        });
+      }
     }
 
     console.error(`unknown command: ${name}`);
     return res.status(400).json({ error: 'unknown command' });
   }
 
-  // TODO : Add a dropdown/action row to select files instead of manual typing
   // Will need to change command for getfile and removefile above
   if (type === InteractionType.MESSAGE_COMPONENT) {
     // custom_id set in payload when sending message component
