@@ -13,12 +13,7 @@ import {
 } from 'discord-interactions';
 
 
-// Make folders to store files etc.
-function initialize() {
-  if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true });
-  if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
-  fs.writeFileSync(`${userDir}/.userid.txt`, userName);
-}
+
 
 // Create an express app
 const app = express();
@@ -42,6 +37,13 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
   const serverDir = `./${guild_id}`;
   const userDir = `${serverDir}/${userName}-${userId}`;
+
+  // Make folders to store files etc.
+  function initialize() {
+    if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true });
+    if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
+    fs.writeFileSync(`${userDir}/.userid.txt`, userName);
+  }
 
   // Command name
   const { name } = data;
