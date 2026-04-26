@@ -68,6 +68,28 @@ const GETFILE_COMMAND = {
   contexts: [0, 1, 2],
 };
 
+const CONVERT_COMMAND = {
+  name: 'convert',
+  description: 'Convert files to other types',
+  type: 1,
+  options: [
+    {
+      name: 'filename',
+      description: 'Input file',
+      type: 11, // attachment
+      required: true,
+    },
+    {
+      name: 'type',
+      description: 'Convert to what type?',
+      type: 3, // String
+      required: true,
+    }
+  ],
+  integration_types: [0, 1],
+  contexts: [0, 1, 2],
+};
+
 
 const ALL_COMMANDS = [TEST_COMMAND, LS_COMMAND, LSA_COMMAND, SAVEFILE_COMMAND, GETFILE_COMMAND];
 

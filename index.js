@@ -12,6 +12,14 @@ import {
   verifyKeyMiddleware,
 } from 'discord-interactions';
 
+
+// Make folders to store files etc.
+function initialize() {
+  if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true });
+  if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
+  fs.writeFileSync(`${userDir}/.userid.txt`, userName);
+}
+
 // Create an express app
 const app = express();
 // Get port, or default to 3000
@@ -32,19 +40,13 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   const userId = member.user.id;
   const userName = member.user.username;
 
-  // Initialize
-  // TODO: Rework in slash command
-  function initialize() {
-    const serverDir = `./${guild_id}`;
-    const userDir = `${serverDir}/${userName}-${userId}`;
+  const serverDir = `./${guild_id}`;
+  const userDir = `${serverDir}/${userName}-${userId}`;
 
-    if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true });
-    if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
-    fs.writeFileSync(`${userDir}/.userid.txt`, userName);
-  }
-
+  // Command name
   const { name } = data;
 
+  // Location to save/get files
   const dir = `./${guild_id}/${userName}-${userId}`;
   if (!fs.existsSync(dir)) {
     error = `Directory not found. Creating one.`;
@@ -159,6 +161,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
     if (name === 'savefile') {
       var hidden = false
+
       try {
         var hidden = data.options[1].value;
       } catch (error) {
@@ -178,6 +181,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           // Convert to array with Object values to handle different ids better
           const file = Object.values(data.resolved.attachments);
           const fileContent = file[0].url;
+
           var fileName = `default`
           if (hidden) {
             fileName = '.' + file[0].filename;
@@ -191,6 +195,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
           fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(buffer));
 
+          // End command
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
@@ -303,17 +308,43 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     }
 
     if (name === 'convert') {
+      var filetype = ""
 
       try {
-        const fileName = data.options[0].value;
-        const filePath = `${dir}/${fileName}`;
+        var filetype = data.options[1].value;
+      } catch (error) {
+        if (error instanceof TypeError) {
+          console.log('User did not enter type');
+        } else {
+          throw error; // Re-throw if not a TypeError
+        }
+      }
+
+      try {
+        // Test log for file object
+        //console.log(data.resolved.attachments);
+        console.log(data.options);          
+
+        // The uploaded file object
+        // Convert to array with Object values to handle different ids better
+        const file = Object.values(data.resolved.attachments);
+        const fileContent = file[0].url;
+        const input_filename = file[0].filename;
+
+        const filePath = `${dir}/${input_filename}`;
+
+        // Download the file first
+        const response = await fetch(fileContent);
+        const buffer = await response.arrayBuffer();
+
+        fs.writeFileSync(filePath, Buffer.from(buffer));
 
         if (!fs.existsSync(filePath)) {
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
               flags: InteractionResponseFlags.EPHEMERAL,
-              content: `File not found: **${fileName}**`
+              content: `File failed to upload: **${fileName}**`
             }
           });
         }
@@ -345,13 +376,13 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           }
         );
         return; // Tell Discord bot request is done
+
       } catch {
-        console.error(`Error retrieving file.`);
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
             flags: InteractionResponseFlags.EPHEMERAL,
-            content: `File could not be retrieved.\nDoes Directory exist?`
+            content: `File could not be converted. Unknown error`
           }
         });
       }
