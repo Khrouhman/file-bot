@@ -51,6 +51,23 @@ const SAVEFILE_COMMAND = {
   contexts: [0, 1, 2],
 };
 
+const REMOVE_COMMANd = {
+  name: 'removefile',
+  description: 'Remove from server.',
+  type: 1,
+  options: [
+    {
+      name: 'filename',
+      description: 'file to remove',
+      type: 3, // String type
+      required: true,
+      autocomplete: true,
+    }
+  ],
+  integration_types: [0, 1],
+  contexts: [0, 1, 2],
+};
+
 const GETFILE_COMMAND = {
   name: 'getfile',
   description: 'Get file from server.',
@@ -91,6 +108,6 @@ const CONVERT_COMMAND = {
 };
 
 
-const ALL_COMMANDS = [TEST_COMMAND, LS_COMMAND, LSA_COMMAND, SAVEFILE_COMMAND, GETFILE_COMMAND, CONVERT_COMMAND];
+const ALL_COMMANDS = [TEST_COMMAND, LS_COMMAND, LSA_COMMAND, SAVEFILE_COMMAND, REMOVE_COMMANd, GETFILE_COMMAND, CONVERT_COMMAND];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);

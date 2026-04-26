@@ -73,6 +73,16 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         }
       });
     }
+
+    if (name === 'removefile') {
+      const files = fs.readdirSync(dir);
+      return res.json({
+        type: InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT,
+        data: {
+          choices: files.map(f => ({ name: f, value: f }))
+        }
+      });
+    }
   }
 
   /**
@@ -217,38 +227,39 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       }
     }
 
+    // TODO
     if (name === 'removefile') {
       var error = ``
       try {
-          // Test log for file object
-          console.log(data.resolved.attachments);
+        const fileName = data.options[0].value;
+        const filePath = `${dir}/${fileName}`;
 
-          // The uploaded file object
-          // Convert to array with Object values to handle different ids better
-          const file = Object.values(data.resolved.attachments);
-          const fileName = file[0].filename;
-          const fileContent = file[0].url;
-
-          // Download the file first
-          const response = await fetch(fileContent);
-          const buffer = await response.arrayBuffer();
-
-          fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(buffer));
-
+        if (!fs.existsSync(filePath)) {
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
               flags: InteractionResponseFlags.EPHEMERAL,
-              content: `File **${fileName}** uploaded successfully!`
+              content: `File not found: **${fileName}**`
             }
           });
+        }
+
+        fs.unlinkSync(filePath);
+
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionResponseFlags.EPHEMERAL,
+            content: `File **${fileName}** removed successfully!`
+          }
+        });
       } catch {
         console.error(`Error saving file.`);
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
             flags: InteractionResponseFlags.EPHEMERAL,
-            content: `File failed to save. Contact Developer.`
+            content: `File failed to remove. Contact Developer.`
           }
         });
       }
@@ -310,17 +321,9 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     }
 
     if (name === 'convert') {
-      var filetype = ""
 
-      try {
-        var filetype = data.options[1].value;
-      } catch (error) {
-        if (error instanceof TypeError) {
-          console.log('User did not enter type');
-        } else {
-          throw error; // Re-throw if not a TypeError
-        }
-      }
+      var filetype = data.options[1].value;
+      
 
       try {
         // Test log for file object
@@ -355,19 +358,22 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         // Makes bot wait so code can send websocket
         res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
 
+        // Convert time
+        const output_filename = input_filename
+
         // Discord expects Multipart form data json
         const form = new FormData();
 
         // Add message to Discord reply
         form.append(
           'payload_json',
-          JSON.stringify({ content: `File retrieved: ${input_filename}` })
+          JSON.stringify({ content: `File converted: ${output_filename}` })
         );
 
         const fileBuffer = fs.readFileSync(filePath); // Get file buffer
         const blob = new Blob([fileBuffer]); // Convert to blob (discord requires blob instead of buffer)
 
-        form.append('files[0]', blob, input_filename); // Add file to discord reply
+        form.append('files[0]', blob, output_filename); // Add file to discord reply
 
         // Webhook sends file
         await fetch(
@@ -394,102 +400,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     return res.status(400).json({ error: 'unknown command' });
   }
 
-  // Will need to change command for getfile and removefile above
-  if (type === InteractionType.MESSAGE_COMPONENT) {
-    // custom_id set in payload when sending message component
-    const componentId = data.custom_id;
-
-    if (componentId.startsWith('accept_button_')) {
-      // get the associated game ID
-      const gameId = componentId.replace('accept_button_', '');
-      // Delete message with token in request body
-      const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
-      try {
-        await res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            // Indicates it'll be an ephemeral message
-            flags: InteractionResponseFlags.EPHEMERAL | InteractionResponseFlags.IS_COMPONENTS_V2,
-            components: [
-              {
-                type: MessageComponentTypes.TEXT_DISPLAY,
-                content: 'What is your object of choice?',
-              },
-              {
-                type: MessageComponentTypes.ACTION_ROW,
-                components: [
-                  {
-                    type: MessageComponentTypes.STRING_SELECT,
-                    // Append game ID
-                    custom_id: `select_choice_${gameId}`,
-                    options: getShuffledOptions(),
-                  },
-                ],
-              },
-            ],
-          },
-        });
-        // Delete previous message
-        await DiscordRequest(endpoint, { method: 'DELETE' });
-      } catch (err) {
-        console.error('Error sending message:', err);
-      }
-    } else if (componentId.startsWith('select_choice_')) {
-      // get the associated game ID
-      const gameId = componentId.replace('select_choice_', '');
-
-      if (activeGames[gameId]) {
-        // Interaction context
-        const context = req.body.context;
-        // Get user ID and object choice for responding user
-        // User ID is in user field for (G)DMs, and member for servers
-        const userId = context === 0 ? req.body.member.user.id : req.body.user.id;
-        const objectName = data.values[0];
-        // Calculate result from helper function
-        const resultStr = getResult(activeGames[gameId], {
-          id: userId,
-          objectName,
-        });
-
-        // Remove game from storage
-        delete activeGames[gameId];
-        // Update message with token in request body
-        const endpoint = `webhooks/${process.env.APP_ID}/${req.body.token}/messages/${req.body.message.id}`;
-
-        try {
-          // Send results
-          await res.send({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: { 
-              flags: InteractionResponseFlags.IS_COMPONENTS_V2,
-              components: [
-                {
-                  type: MessageComponentTypes.TEXT_DISPLAY,
-                  content: resultStr
-                }
-              ]
-             },
-          });
-          // Update ephemeral message
-          await DiscordRequest(endpoint, {
-            method: 'PATCH',
-            body: {
-              components: [
-                {
-                  type: MessageComponentTypes.TEXT_DISPLAY,
-                  content: 'Nice choice ' + getRandomEmoji()
-                }
-              ],
-            },
-          });
-        } catch (err) {
-          console.error('Error sending message:', err);
-        }
-      }
-    }
-    
-    return;
-  }
 
   console.error('unknown interaction type', type);
   return res.status(400).json({ error: 'unknown interaction type' });
