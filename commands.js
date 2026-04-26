@@ -2,11 +2,12 @@ import 'dotenv/config';
 import { InstallGlobalCommands } from './utils.js';
 import { getFiles } from './index.js';
 
-// Get the game choices from game.js
+// Get the game choices from index.js
 function createCommandChoices() {
   const files = getFiles();
   const commandChoices = [];
 
+  // Add each file as a choice
   for (let file of files) {
     commandChoices.push({
       name: file,
@@ -28,12 +29,12 @@ const TEST_COMMAND = {
 // From discord tutorial. Reference for dropdown/action row
 const CHALLENGE_COMMAND = {
   name: 'challenge',
-  description: 'Challenge to a match of rock paper scissors',
+  description: 'Test list of files',
   options: [
     {
       type: 3,
-      name: 'object',
-      description: 'Pick your object',
+      name: 'file',
+      description: 'Pick your file',
       required: true,
       choices: createCommandChoices(),
     },
@@ -99,6 +100,6 @@ const GETFILE_COMMAND = {
 };
 
 
-const ALL_COMMANDS = [TEST_COMMAND, LS_COMMAND, LSA_COMMAND, SAVEFILE_COMMAND, GETFILE_COMMAND];
+const ALL_COMMANDS = [TEST_COMMAND, CHALLENGE_COMMAND, LS_COMMAND, LSA_COMMAND, SAVEFILE_COMMAND, GETFILE_COMMAND];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);

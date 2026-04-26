@@ -17,7 +17,8 @@ const app = express();
 // Get port, or default to 3000
 const PORT = process.env.PORT || 3000;
 
-var fileChoices = {}
+// Get Files to display in Dropdown menu
+var fileChoices = ["file1", "file2", "notfile.txt"]
 
 export function getFiles() {
   return fileChoices
@@ -39,6 +40,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   const userName = member.user.username;
 
   // Initialize
+  // TODO: Rework in slash command
   function initialize() {
     const serverDir = `./${guild_id}`;
     const userDir = `${serverDir}/${userName}-${userId}`;
@@ -49,14 +51,13 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   }
 
   // Handle verification requests
-   
   if (type === InteractionType.PING) {
     return res.send({ type: InteractionResponseType.PONG });
   }
 
   /**
    * Handle slash command requests
-   * See https://discord.com/developers/docs/interactions/application-commands#slash-commands
+   * Source https://discord.com/developers/docs/interactions/application-commands#slash-commands
    */
   if (type === InteractionType.APPLICATION_COMMAND) {
     const { name } = data;
@@ -91,9 +92,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         const output = execSync(`ls "${dir}"`, { encoding: 'utf8' });
 
         const fileList =`\`\`\`bash\n${output}\`\`\``;
-
-        fileChoices = output.split('\n')
-        console.log(fileChoices)
 
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
