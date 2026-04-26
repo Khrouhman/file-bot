@@ -51,9 +51,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   console.log("-".repeat(100))
   console.log("COMMAND RUNNING")
   console.log("-".repeat(100))
-  console.log(name)
-  console.log(userName)
-  console.log(userId)
+  console.log(data)
+  console.log(userName + " " + userId)
   console.log(req.body.channel)
 
   // Location to save/get files
