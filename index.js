@@ -231,6 +231,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
               headers: { 'Content-Type': 'application/json' }
             }
           );
+          return
       } catch {
         console.error(`Error saving file.`);
         return res.send({
