@@ -11,6 +11,7 @@ function createCommandChoices() {
   for (let file of files) {
     commandChoices.push({
       name: file,
+      value: file,
     });
   }
   return commandChoices;
