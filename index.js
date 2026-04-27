@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { execSync } from 'child_process';
-import { createWriteStream, fs } from 'fs';
+import fs, { createWriteStream  } from 'fs';
 import { pipeline } from 'stream/promises';
 
 // For Discord express slash commands
