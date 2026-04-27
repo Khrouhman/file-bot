@@ -53,15 +53,19 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     const filePath = path
     const fileName = filePath.replace(dir,"");  // takes only the end of filepath as name
 
-    console.log(fileName)
+    console.log("Getfile path" + filePath)
+    console.log("GetFile name:" + fileName)
     if (!fs.existsSync(filePath)) {
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          flags: InteractionResponseFlags.EPHEMERAL,
-          content: `File not found: **${fileName}**`
-        }
-      });
+      console.error("File does not exist")
+      await fetch(
+          `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ content: `File does not exist` }),
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+        return
     }
 
     // Discord expects Multipart form data json
@@ -73,7 +77,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       JSON.stringify({ content: `File retrieved: ${fileName}` })
     );
 
-    const fileBuffer = fs.readFileSync(filePath); // Get file buffer
+     const fileBuffer = fs.readFileSync(filePath); // Get file buffer
     const blob = new Blob([fileBuffer]); // Convert to blob (discord requires blob instead of buffer)
 
     form.append('files[0]', blob, fileName); // Add file to discord reply
@@ -326,45 +330,40 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
       } catch {
         console.error(`Error retrieving file.`);
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            flags: InteractionResponseFlags.EPHEMERAL,
-            content: `File could not be retrieved.\nDoes Directory exist?`
+        await fetch(
+          `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ content: `File could not be retrieved, check with Developer` }),
+            headers: { 'Content-Type': 'application/json' }
           }
-        });
+        );
+        return
+
       }
     }
 
     if (name === 'download') {
-      try {        
-        const url = data.options[0].value;
+      try {
+        var url = data.options[0].value;
+	//const regex = /^(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?$/;
+
         const filetype = data.options[1]?.value ?? "none"
         // Test log for file object
-        console.log("Url " + url)
+        console.log("Url: " + url)
         console.log("Type: " + filetype)
 
         // Filebot is thinking
         // Makes bot wait so code can send websocket
         res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
 
-        await execSync(`bash/parse_ytdlp.sh ${url} ${filetype} ${dir}`, { encoding: 'utf8' });
+        const filepath = await execSync(`bash/parse_ytdlp.sh ${url} ${filetype} ${dir}`, { encoding: 'utf8' });
 
-        const output = execSync(`ls ${dir}`);
+        console.log(filepath)
+        return await getFileFromServer(filepath);
 
-        const currentDir =`\`\`\`bash\n${output}\`\`\``;
-
-        await fetch(
-          `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
-          {
-            method: 'POST',
-            body: JSON.stringify({ content: `${currentDir}` }),
-            headers: { 'Content-Type': 'application/json' }
-          }
-        );
-        return
-
-      } catch {
+      } catch (err) {
+        console.error('Error caught:', err.message);
         await fetch(
           `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
           {
@@ -389,3 +388,4 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 app.listen(PORT, () => {
   console.log('Listening on port', PORT);
 });
+
