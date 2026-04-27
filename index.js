@@ -185,13 +185,8 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
-            flags: InteractionResponseFlags.IS_COMPONENTS_V2,
-            components: [
-              {
-                type: MessageComponentTypes.TEXT_DISPLAY,
-                content: `${fileList}`
-              }
-            ]
+            flags: InteractionResponseFlags.EPHEMERAL, // Only show to user
+            content: `${fileList}`
           },
         });
       } catch (err) {
@@ -243,8 +238,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           response.body,
           createWriteStream(filePath)
         );
-
-
         // const response = await fetch(fileContent);
         // const buffer = await response.arrayBuffer();
 
@@ -255,7 +248,10 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
           {
             method: 'POST',
-            body: JSON.stringify({ content: `File **${fileName}** uploaded successfully!` }),
+            body: JSON.stringify({ 
+              content: `File **${fileName}** uploaded successfully!`,
+              flags: 64 // InteractionResponseFlags.EPHEMERAL
+            }),
             headers: { 'Content-Type': 'application/json' }
           }
         );
