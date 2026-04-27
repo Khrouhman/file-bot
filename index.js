@@ -346,7 +346,9 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         // Makes bot wait so code can send websocket
         res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
 
-        const output = await execSync(`bash/parse_ytdlp.sh ${url} ${filetype} ${dir}`, { encoding: 'utf8' });
+        await execSync(`bash/parse_ytdlp.sh ${url} ${filetype} ${dir}`, { encoding: 'utf8' });
+
+        const output = execSync(`ls ${dir}`);
 
         const currentDir =`\`\`\`bash\n${output}\`\`\``;
 
