@@ -48,12 +48,12 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     fs.writeFileSync(`${userDir}/.userid.txt`, userName);
   }
 
-  function removeFileFromServer(d) {
-    if (!d) {
+  function removeFileFromServer(name, path) {
+    if (!path )  {
       return
     }
-    const fileName = d.options[0].value;
-    const filePath = `${dir}/${fileName}`;
+    const fileName = name 
+    const filePath = path
 
     if (!fs.existsSync(filePath)) {
       return res.send({
@@ -75,15 +75,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       }
     });
   }
-
-  // Command ran log
-  console.log("-".repeat(100))
-  console.log("FILEBOT IS RUNNING" )
-  console.log("-".repeat(100))
-  console.log(userName + " ran command:")
-  console.log(data)
-  console.log("On Channel:")
-  console.log(req.body.channel)
 
   // Location to save/get files
   const dir = `./${guild_id}/${userName}-${userId}`;
@@ -127,6 +118,15 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
    * Source https://discord.com/developers/docs/interactions/application-commands#slash-commands
    */
   if (type === InteractionType.APPLICATION_COMMAND) {
+
+    // Command ran log
+    console.log("-".repeat(100))
+    console.log("FILEBOT IS RUNNING" )
+    console.log("-".repeat(100))
+    console.log(userName + " ran command:")
+    console.log(data)
+    console.log("On Channel:")
+    console.log(req.body.channel)
 
     // Commands
     if (name === 'test') {
@@ -235,7 +235,10 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     // TODO
     if (name === 'removefile') {
       try {
-        return removeFileFromServer(data)
+        const fileName = data.options[0].value;
+        const filePath = `${dir}/${fileName}`;
+
+        return removeFileFromServer(fileName, filePath)
 
       } catch {
         console.error(`Error saving file.`);
