@@ -74,14 +74,11 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       'payload_json',
       JSON.stringify({ content: `File retrieved: ${fileName}` })
     );
-    // Pipeline method for large files
-    // avoids memory issues for pi
-    form.append('files[0]', fs.createReadStream(filePath), fileName);
 
-    // const fileBuffer = fs.readFileSync(filePath); // Get file buffer
-    // const blob = new Blob([fileBuffer]); // Convert to blob (discord requires blob instead of buffer)
+    const fileBuffer = fs.readFileSync(filePath); // Get file buffer
+    const blob = new Blob([fileBuffer]); // Convert to blob (discord requires blob instead of buffer)
 
-    // form.append('files[0]', blob, fileName); // Add file to discord reply
+    form.append('files[0]', blob, fileName); // Add file to discord reply
 
     // Webhook sends file
     await fetch(
@@ -323,7 +320,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         const fileName = data.options[0].value;
         const filePath = `${dir}/${fileName}`;
 
-        return getFileFromServer(fileName, filePath)
+        return await getFileFromServer(fileName, filePath)
 
       } catch {
         console.error(`Error retrieving file.`);
