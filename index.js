@@ -354,7 +354,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
           {
             method: 'POST',
-            body: JSON.stringify({ content: `$currentDir` }),
+            body: JSON.stringify({ content: `${currentDir}` }),
             headers: { 'Content-Type': 'application/json' }
           }
         );
