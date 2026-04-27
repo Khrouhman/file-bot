@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { execSync } from 'child_process';
-import fs from 'fs';
+import { createWriteStream, fs } from 'fs';
+import { pipeline } from 'stream/promises';
 
 // For Discord express slash commands
 import express from 'express';
@@ -11,7 +12,6 @@ import {
   MessageComponentTypes,
   verifyKeyMiddleware,
 } from 'discord-interactions';
-
 
 
 
@@ -215,14 +215,22 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           // Defer to avoid timeout
           res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
 
+          const filePath = `${dir}/${fileName}`;
+
           // Download the file first
           const response = await fetch(fileContent);
-          const buffer = await response.arrayBuffer();
+          await pipeline(
+            response.body,
+            createWriteStream(filePath)
+          );
 
-          fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(buffer));
 
-          // End command
-          // Then follow up via webhook
+          // const response = await fetch(fileContent);
+          // const buffer = await response.arrayBuffer();
+
+          // fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(buffer));
+
+          // Send response to discord 
           await fetch(
             `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
             {
@@ -234,13 +242,15 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           return
       } catch {
         console.error(`Error saving file.`);
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            flags: InteractionResponseFlags.EPHEMERAL,
-            content: `File failed to save. Contact Developer.`
-          }
-        });
+        await fetch(
+            `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
+            {
+              method: 'POST',
+              body: JSON.stringify({ content: `File could not be saved, check with Developer` }),
+              headers: { 'Content-Type': 'application/json' }
+            }
+          );
+          return
       }
     }
 
