@@ -48,51 +48,50 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     fs.writeFileSync(`${userDir}/.userid.txt`, userName);
   }
 
-  function getFileFromServer(name, path) {
+  async function getFileFromServer(name, path) {
 
     const fileName = name
     const filePath = path
     if (!fs.existsSync(filePath)) {
-          return res.send({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              flags: InteractionResponseFlags.EPHEMERAL,
-              content: `File not found: **${fileName}**`
-            }
-          });
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          flags: InteractionResponseFlags.EPHEMERAL,
+          content: `File not found: **${fileName}**`
         }
+      });
+    }
 
-        // Filebot is thinking
-        // Makes bot wait so code can send websocket
-        res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
+    // Filebot is thinking
+    // Makes bot wait so code can send websocket
+    res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
 
-        // Discord expects Multipart form data json
-        const form = new FormData();
+    // Discord expects Multipart form data json
+    const form = new FormData();
 
-        // Add message to Discord reply
-        form.append(
-          'payload_json',
-          JSON.stringify({ content: `File retrieved: ${fileName}` })
-        );
+    // Add message to Discord reply
+    form.append(
+      'payload_json',
+      JSON.stringify({ content: `File retrieved: ${fileName}` })
+    );
+    // Pipeline method for large files
+    // avoids memory issues for pi
+    form.append('files[0]', fs.createReadStream(filePath), fileName);
 
-        // Pipeline method for large files
-        // avoids memory issues for pi
-        form.append('files[0]', fs.createReadStream(filePath), fileName);
+    // const fileBuffer = fs.readFileSync(filePath); // Get file buffer
+    // const blob = new Blob([fileBuffer]); // Convert to blob (discord requires blob instead of buffer)
 
-        // const fileBuffer = fs.readFileSync(filePath); // Get file buffer
-        // const blob = new Blob([fileBuffer]); // Convert to blob (discord requires blob instead of buffer)
+    // form.append('files[0]', blob, fileName); // Add file to discord reply
 
-        // form.append('files[0]', blob, fileName); // Add file to discord reply
-
-        // Webhook sends file
-        await fetch(
-          `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
-          {
-            method: 'POST',
-            body: form
-          }
-        );
-        return; // Tell Discord bot request is done
+    // Webhook sends file
+    await fetch(
+      `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
+      {
+        method: 'POST',
+        body: form
+      }
+    );
+    return // Tell Discord bot request is done
   }
 
   // Location to save/get files
@@ -380,7 +379,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
         fs.unlinkSync(filePath)
 
-        return getFileFromServer(output_filename, output_filepath)
+        return await getFileFromServer(output_filename, output_filepath)
         
       } catch {
         return res.send({
