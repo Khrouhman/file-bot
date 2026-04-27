@@ -368,7 +368,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         );
 
         // Convert time
-        const output_filename = "test.png"
+        const output_filename = "test." + filetype
         const output_filepath = `${dir}/${output_filename}`
         // TODO file type and splicing
         const output = execSync(
