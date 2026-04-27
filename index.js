@@ -48,10 +48,12 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     fs.writeFileSync(`${userDir}/.userid.txt`, userName);
   }
 
-  async function getFileFromServer(name, path) {
+  async function getFileFromServer(path) {
 
-    const fileName = name
     const filePath = path
+    const fileName = filePath.replace(dir,"");  // takes only the end of filepath as name
+
+    console.log(fileName)
     if (!fs.existsSync(filePath)) {
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -320,7 +322,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         // Makes bot wait so code can send websocket
         res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
 
-        return await getFileFromServer(fileName, filePath)
+        return await getFileFromServer(filePath)
 
       } catch {
         console.error(`Error retrieving file.`);
