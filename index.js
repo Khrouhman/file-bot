@@ -73,7 +73,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         flags: InteractionResponseFlags.EPHEMERAL,
         content: `File **${fileName}** removed successfully!`
       }
-        });
+    });
   }
 
   // Command ran log
@@ -235,7 +235,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     // TODO
     if (name === 'removefile') {
       try {
-        removeFileFromServer(data)
+        return removeFileFromServer(data)
 
       } catch {
         console.error(`Error saving file.`);
