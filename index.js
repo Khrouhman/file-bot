@@ -62,7 +62,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       });
     }
 
-
     // Discord expects Multipart form data json
     const form = new FormData();
 
@@ -372,7 +371,10 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         const output_filename = "test.png"
         const output_filepath = `${dir}/${output_filename}`
         // TODO file type and splicing
-        const output = execSync(`ffmpeg -i "${filePath}" "${output_filepath}"`, { encoding: 'utf8' });
+        const output = execSync(
+          `pv ${filePath} | ffmpeg -loglevel error -v error -stats -i pipe:0 ${output_filepath}"`,
+          { encoding: 'utf8' }
+        );
 
         fs.unlinkSync(filePath)
 
