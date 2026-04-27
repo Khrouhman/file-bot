@@ -342,26 +342,34 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         console.log("Url " + url)
         console.log("Type: " + filetype)
 
-        const output = execSync(`bash/parse_ytdlp.sh ${url} ${filetype} ${dir}`, { encoding: 'utf8' });
+        // Filebot is thinking
+        // Makes bot wait so code can send websocket
+        res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
+
+        const output = await execSync(`bash/parse_ytdlp.sh ${url} ${filetype} ${dir}`, { encoding: 'utf8' });
 
         const currentDir =`\`\`\`bash\n${output}\`\`\``;
 
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            flags: InteractionResponseFlags.EPHEMERAL, // Only show to user
-            content: `${currentDir}`
-          },
-        });
+        await fetch(
+          `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ content: `$currentDir` }),
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+        return
 
       } catch {
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            flags: InteractionResponseFlags.EPHEMERAL,
-            content: `File could not be converted. Unknown error`
+        await fetch(
+          `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ content: `File could not be saved, check with Developer` }),
+            headers: { 'Content-Type': 'application/json' }
           }
-        });
+        );
+        return
       }
     }
 
