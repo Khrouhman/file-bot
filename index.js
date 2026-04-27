@@ -334,53 +334,28 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       }
     }
 
-    if (name === 'convert') {
+    if (name === 'download') {
 
-      var filetype = data.options[1].value;
       
       try {        
-        // The uploaded file object
-        // Convert to array with Object values to handle different ids better
-        const file = Object.values(data.resolved.attachments);
-        const fileContent = file[0].url;
-
+        const url = data.options[0].value;
+        const filetype = data.options[1]?.value ?? false
         // Test log for file object
-        console.log("File " + file[0].filename)
-        console.log("Type: " + file[0].content_type)
+        console.log("Url " + url)
+        console.log("Type: " + filetype)
 
-        var fileName = `default`
-        if (hidden) {
-          fileName = '.' + file[0].filename;
-        } else {
-          fileName = file[0].filename;
-        }
+        const output = execSync(`pwd`, { encoding: 'utf8' });
 
-        const filePath = `${dir}/${fileName}`;
+        const currentDir =`\`\`\`bash\n${output}\`\`\``;
 
-        // Defer to avoid timeout
-        res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            flags: InteractionResponseFlags.EPHEMERAL, // Only show to user
+            content: `${currentDir}`
+          },
+        });
 
-        // Download the file first
-        const response = await fetch(fileContent);
-        await pipeline(
-          response.body,
-          createWriteStream(filePath)
-        );
-
-        // Convert time
-        const output_filename = "test." + filetype
-        const output_filepath = `${dir}/${output_filename}`
-        // TODO file type and splicing
-        const output = execSync(
-          `pv "${filePath}" | ffmpeg -loglevel error -v error -stats -i pipe:0 ${output_filepath}`,
-          { encoding: 'utf8' }
-        );
-
-        fs.unlinkSync(filePath)
-
-        return await getFileFromServer(output_filename, output_filepath)
-        
-        
       } catch {
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,

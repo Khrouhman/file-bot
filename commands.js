@@ -51,7 +51,7 @@ const SAVEFILE_COMMAND = {
   contexts: [0, 1, 2],
 };
 
-const REMOVE_COMMANd = {
+const REMOVE_COMMAND = {
   name: 'removefile',
   description: 'Remove from server.',
   type: 1,
@@ -85,29 +85,29 @@ const GETFILE_COMMAND = {
   contexts: [0, 1, 2],
 };
 
-const CONVERT_COMMAND = {
-  name: 'convert',
-  description: 'Convert files to other types',
+const DOWNLOAD_COMMAND = {
+  name: 'download',
+  description: 'Download video and audio from the internet',
   type: 1,
   options: [
     {
-      name: 'filename',
-      description: 'Input file',
-      type: 11, // attachment
+      name: 'url',
+      description: 'Website url of video/image',
+      type: 3, // string
       required: true,
     },
     {
       name: 'type',
-      description: 'Convert to what type?',
-      type: 3, // String
-      required: true,
-    }
+      description: 'Filetype you want to retrieve',
+      type: 3, // string
+      required: false,
+    },
   ],
   integration_types: [0, 1],
   contexts: [0, 1, 2],
 };
 
 
-const ALL_COMMANDS = [TEST_COMMAND, LS_COMMAND, LSA_COMMAND, SAVEFILE_COMMAND, REMOVE_COMMANd, GETFILE_COMMAND, CONVERT_COMMAND];
+const ALL_COMMANDS = [TEST_COMMAND, LS_COMMAND, LSA_COMMAND, SAVEFILE_COMMAND, REMOVE_COMMAND, GETFILE_COMMAND, DOWNLOAD_COMMAND];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
