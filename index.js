@@ -62,9 +62,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       });
     }
 
-    // Filebot is thinking
-    // Makes bot wait so code can send websocket
-    res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
 
     // Discord expects Multipart form data json
     const form = new FormData();
@@ -320,6 +317,10 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         const fileName = data.options[0].value;
         const filePath = `${dir}/${fileName}`;
 
+        // Filebot is thinking
+        // Makes bot wait so code can send websocket
+        res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
+
         return await getFileFromServer(fileName, filePath)
 
       } catch {
@@ -376,6 +377,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         fs.unlinkSync(filePath)
 
         return await getFileFromServer(output_filename, output_filepath)
+        
         
       } catch {
         return res.send({
