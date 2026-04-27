@@ -335,16 +335,14 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
     }
 
     if (name === 'download') {
-
-      
       try {        
         const url = data.options[0].value;
-        const filetype = data.options[1]?.value ?? false
+        const filetype = data.options[1]?.value ?? "none"
         // Test log for file object
         console.log("Url " + url)
         console.log("Type: " + filetype)
 
-        const output = execSync(`pwd`, { encoding: 'utf8' });
+        const output = execSync(`bash/parse_ytdlp.sh ${url} ${filetype} ${dir}`, { encoding: 'utf8' });
 
         const currentDir =`\`\`\`bash\n${output}\`\`\``;
 
