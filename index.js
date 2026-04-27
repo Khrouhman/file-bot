@@ -369,10 +369,9 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
         // Convert time
         const output_filename = "test.png"
-        // TODO file type and splicing
-        const output = execSync(`ffmpeg -i "${fileName}" "${output_filename}"`, { encoding: 'utf8' });
-
         const output_filepath = `${dir}/${output_filename}`
+        // TODO file type and splicing
+        const output = execSync(`ffmpeg -i "${filePath}" "${output_filepath}"`, { encoding: 'utf8' });
 
         fs.unlinkSync(filePath)
 
