@@ -213,10 +213,53 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       var hidden = data.options[1]?.value ?? false
 
       try {
-          //console.log(data.resolved.attachments);
-          //console.log(data.options);          
+        //console.log(data.resolved.attachments);
+        //console.log(data.options);          
 
-          saveToServer(data)
+        // The uploaded file object
+        // Convert to array with Object values to handle different ids better
+        const file = Object.values(data.resolved.attachments);
+        const fileContent = file[0].url;
+
+        // Test log for file object
+        console.log("File " + file[0].filename)
+        console.log("Type: " + file[0].content_type)
+
+        var fileName = `default`
+        if (hidden) {
+          fileName = '.' + file[0].filename;
+        } else {
+          fileName = file[0].filename;
+        }
+
+        // Defer to avoid timeout
+        res.send({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
+
+        const filePath = `${dir}/${fileName}`;
+
+        // Download the file first
+        const response = await fetch(fileContent);
+        await pipeline(
+          response.body,
+          createWriteStream(filePath)
+        );
+
+
+        // const response = await fetch(fileContent);
+        // const buffer = await response.arrayBuffer();
+
+        // fs.writeFileSync(`${dir}/${fileName}`, Buffer.from(buffer));
+
+        // Send response to discord 
+        await fetch(
+          `https://discord.com/api/v10/webhooks/${process.env.APP_ID}/${token}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ content: `File **${fileName}** uploaded successfully!` }),
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+        return
           
       } catch {
         console.error(`Error saving file.`);
